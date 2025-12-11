@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Selection Quiz</title>
+    <!-- Load Tailwind CSS from CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#4f46e5',
+                        'primary-dark': '#4338ca',
+                        'success': '#10b981',
+                        'warning': '#f59e0b',
+                        'danger': '#ef4444',
+                        'light': '#f8fafc'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom styles for enhanced aesthetics */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .screen-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .main-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 3rem;
+            border-radius: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            max-width: 700px;
+            width: 100%;
+            transition: all 0.3s ease-in-out;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .main-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 32px 64px -12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .quiz-button {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .quiz-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.2);
+        }
+        
+        .quiz-button:active {
+            transform: translateY(-1px);
+        }
+        
+        .quiz-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .quiz-button:hover::before {
+            left: 100%;
+        }
+        
+        .correct-message {
+            animation: fadeInOut 3s forwards;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: scale(0.8) translateY(-20px); }
+            20% { opacity: 1; transform: scale(1.05) translateY(0); }
+            80% { opacity: 1; transform: scale(1.05) translateY(0); }
+            100% { opacity: 0; transform: scale(0.8) translateY(-20px); }
+        }
+        
+        .question-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border: 2px solid #e2e8f0;
+            border-radius: 1.5rem;
+            padding: 2rem;
+            margin: 2rem 0;
+            position: relative;
+        }
+        
+        .question-number {
+            position: absolute;
+            top: -15px;
+            left: 2rem;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-weight: 700;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+        
+        .math-expression {
+            font-size: 3rem;
+            font-weight: 900;
+            text-align: center;
+            color: #1f2937;
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            margin: 1rem 0;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e5e7eb;
+        }
+        
+        .option-button {
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            margin: 0.5rem;
+            min-width: 120px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .option-button:hover {
+            background: linear-gradient(135deg, #7c3aed, #9333ea);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .input-field {
+            border: 3px solid #d1d5db;
+            padding: 1rem;
+            border-radius: 1rem;
+            width: 100%;
+            max-width: 200px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .input-field:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+            outline: none;
+        }
+        
+        .progress-bar {
+            background: #e5e7eb;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #4f46e5, #7c3aed);
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+        
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        .tries-indicator {
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid #fca5a5;
+            border-radius: 1rem;
+            padding: 0.5rem 1rem;
+            color: #dc2626;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .success-icon {
+            width: 24px;
+            height: 24px;
+            background: #10b981;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background decorative elements -->
+    <div class="floating-shape" style="top: 10%; left: 10%; width: 100px; height: 100px; background: #4f46e5; animation-delay: 0s;"></div>
+    <div class="floating-shape" style="top: 20%; right: 15%; width: 150px; height: 150px; background: #7c3aed; animation-delay: 2s;"></div>
+    <div class="floating-shape" style="bottom: 20%; left: 20%; width: 80px; height: 80px; background: #10b981; animation-delay: 4s;"></div>
+    <div class="floating-shape" style="bottom: 10%; right: 10%; width: 120px; height: 120px; background: #f59e0b; animation-delay: 1s;"></div>
+
+    <!-- Main Application Container -->
+    <div id="app" class="screen-container">
+        <!-- Content will be injected here by JavaScript -->
+    </div>
+
+    <!-- Credit Line - Fixed at the bottom -->
+    <div class="fixed bottom-0 left-0 w-full p-3 text-center text-sm text-white bg-black/20 backdrop-blur-sm shadow-inner">
+        <span class="font-semibold">Developed by Augustine Anbananthan</span> | <span class="text-blue-200">Educational Excellence</span>
+    </div>
+
+    <script>
+        // --- Core State Management ---
+        const state = {
+            currentView: 'classSelection', // 'classSelection', 'quizSelection', 'quiz'
+            selectedClass: null,
+            quizType: null, // 'mcq' or 'direct'
+            questions: [],
+            currentQuestionIndex: 0,
+            incorrectTries: 0,
+            maxTries: 3,
+            totalQuestions: 10,
+            classes: [3, 4, 5, 6, 7, 8, 9, 10]
+        };
+
+        const appElement = document.getElementById('app');
+
+        // --- Utility Functions ---
+
+        /** Generates a simple arithmetic problem based on class level. */
+        function generateProblem(classLevel) {
+            let num1, num2, operator, max;
+
+            if (classLevel <= 5) {
+                max = 20; // Lower numbers for younger classes
+            } else if (classLevel <= 8) {
+                max = 100;
+            } else {
+                max = 500;
+            }
+
+            // Determine operator mix based on level
+            const ops = classLevel < 6 ? ['+', '-'] : (classLevel < 8 ? ['+', '-', '*'] : ['+', '-', '*', '/']);
+            operator = ops[Math.floor(Math.random() * ops.length)];
+
+            // Generate numbers ensuring results are reasonable and division is clean
+            let answer;
+            let expression;
+
+            if (operator === '+') {
+                num1 = Math.floor(Math.random() * max) + 1;
+                num2 = Math.floor(Math.random() * max) + 1;
+                answer = num1 + num2;
+                expression = `${num1} + ${num2}`;
+            } else if (operator === '-') {
+                num1 = Math.floor(Math.random() * max) + 1;
+                num2 = Math.floor(Math.random() * max) + 1;
+                // Ensure non-negative result
+                if (num1 < num2) [num1, num2] = [num2, num1];
+                answer = num1 - num2;
+                expression = `${num1} - ${num2}`;
+            } else if (operator === '*') {
+                // Reduce max for multiplication to keep numbers manageable
+                const multMax = classLevel < 6 ? 12 : 25;
+                num1 = Math.floor(Math.random() * multMax) + 1;
+                num2 = Math.floor(Math.random() * multMax) + 1;
+                answer = num1 * num2;
+                expression = `${num1} × ${num2}`;
+            } else if (operator === '/') {
+                // Ensure num1 is a multiple of num2
+                const divisorMax = classLevel < 8 ? 15 : 25;
+                num2 = Math.floor(Math.random() * divisorMax) + 1;
+                answer = Math.floor(Math.random() * divisorMax) + 1;
+                num1 = answer * num2;
+                // Ensure we don't divide by 0 or have num1 < num2 (already handled by multiplication process)
+                if (num2 === 0 || num1 === 0) return generateProblem(classLevel); // Retry if edge case occurs
+                expression = `${num1} ÷ ${num2}`;
+            }
+
+            return {
+                text: `Calculate the result of`,
+                answer: answer,
+                expression: expression,
+            };
+        }
+
+        /** Generates 4 unique options for MCQ, including the correct one. */
+        function generateMCQOptions(correctAnswer) {
+            const options = new Set();
+            options.add(correctAnswer);
+
+            while (options.size < 4) {
+                let wrongAnswer;
+                // Generate answers near the correct one for challenge
+                let deviation = Math.floor(Math.random() * 5) + 1;
+                
+                // Ensure options are sufficiently varied
+                if (Math.random() < 0.5) {
+                    wrongAnswer = correctAnswer + deviation;
+                } else {
+                    wrongAnswer = correctAnswer - deviation;
+                }
+
+                if (wrongAnswer < 0) wrongAnswer = Math.abs(wrongAnswer); // Keep answers non-negative
+                if (wrongAnswer !== correctAnswer) {
+                    options.add(wrongAnswer);
+                }
+            }
+
+            return Array.from(options).sort(() => Math.random() - 0.5);
+        }
+        
+        // --- Navigation Handlers ---
+
+        function navigateToQuizSelection(classLevel) {
+            state.selectedClass = classLevel;
+            state.currentView = 'quizSelection';
+            render();
+        }
+
+        function startQuiz(quizType) {
+            state.quizType = quizType;
+            state.currentQuestionIndex = 0;
+            state.incorrectTries = 0;
+
+            // Generate all 10 questions
+            state.questions = Array.from({ length: state.totalQuestions }, () => {
+                const problem = generateProblem(state.selectedClass);
+                if (quizType === 'mcq') {
+                    problem.options = generateMCQOptions(problem.answer);
+                }
+                return problem;
+            });
+
+            state.currentView = 'quiz';
+            render();
+        }
+
+        function navigateBack() {
+            if (state.currentView === 'quizSelection') {
+                state.currentView = 'classSelection';
+            } else if (state.currentView === 'quiz') {
+                state.currentView = 'quizSelection';
+            }
+            render();
+        }
+
+        function quitApp() {
+            // Reset the entire application state and return to class selection
+            state.currentView = 'classSelection';
+            state.selectedClass = null;
+            state.quizType = null;
+            state.questions = [];
+            state.currentQuestionIndex = 0;
+            state.incorrectTries = 0;
+            render();
+            showSystemMessage("🎉 Session Ended. Thank you for practicing!", "bg-green-100 text-green-800 border border-green-200");
+        }
+        
+        // --- Quiz Logic ---
+        
+        function checkAnswer(userAnswer) {
+            const currentQuestion = state.questions[state.currentQuestionIndex];
+            const correctAnswer = currentQuestion.answer;
+            let message = '';
+            let isCorrect = false;
+
+            if (Number(userAnswer) === correctAnswer) {
+                isCorrect = true;
+                message = "🎉 Excellent! Moving to the next question...";
+                showSystemMessage(message, "bg-green-100 text-green-800 border border-green-200");
+                setTimeout(nextQuestion, 2000);
+            } else {
+                state.incorrectTries++;
+                
+                if (state.incorrectTries < state.maxTries) {
+                    const triesLeft = state.maxTries - state.incorrectTries;
+                    message = `❌ Not quite right. You have ${triesLeft} more attempt${triesLeft > 1 ? 's' : ''}.`;
+                    showSystemMessage(message, "bg-yellow-100 text-yellow-800 border border-yellow-200");
+                    // Re-render to update the message, but stay on the same question
+                    render();
+                } else {
+                    message = `💡 The correct answer was ${correctAnswer}. Let's move to the next question!`;
+                    showSystemMessage(message, "bg-red-100 text-red-800 border border-red-200");
+                    setTimeout(nextQuestion, 3000); // Wait longer before moving on after final fail
+                }
+            }
+        }
+        
+        function nextQuestion() {
+            state.incorrectTries = 0;
+            state.currentQuestionIndex++;
+
+            if (state.currentQuestionIndex >= state.totalQuestions) {
+                // Quiz finished
+                state.currentView = 'quizFinished';
+                render();
+            } else {
+                // Proceed to next question
+                render();
+            }
+        }
+        
+        // --- Rendering Functions ---
+
+        /** Renders a transient message box for feedback. */
+        function showSystemMessage(text, classes) {
+            const messageBox = document.createElement('div');
+            messageBox.id = 'system-message';
+            messageBox.className = `fixed top-8 left-1/2 -translate-x-1/2 p-6 rounded-2xl shadow-2xl font-bold z-50 correct-message max-w-md ${classes}`;
+            messageBox.innerHTML = `<div class="text-center">${text}</div>`;
+            
+            // Remove any existing message
+            const existingMessage = document.getElementById('system-message');
+            if (existingMessage) existingMessage.remove();
+
+            document.body.appendChild(messageBox);
+            
+            // Automatically remove the message after the animation finishes
+            setTimeout(() => {
+                if (document.getElementById('system-message')) {
+                    document.getElementById('system-message').remove();
+                }
+            }, 3000); 
+        }
+
+        /** Renders Screen 1: Class Selection. */
+        function renderClassSelection() {
+            const classButtons = state.classes.map(c => `
+                <button 
+                    onclick="navigateToQuizSelection(${c})"
+                    class="quiz-button bg-gradient-to-r from-primary to-primary-dark text-white hover:from-primary-dark hover:to-purple-700 w-full md:w-1/4 m-2 transform hover:scale-105"
+                >
+                    <div class="text-2xl mb-2">📚</div>
+                    <div class="text-lg font-bold">Class ${c}</div>
+                </button>
+            `).join('');
+
+            return `
+                <div class="main-card text-center">
+                    <div class="mb-8">
+                        <h1 class="text-5xl font-black text-gray-900 mb-4">
+                            🧮 Math Practice Quiz
+                        </h1>
+                        <p class="text-xl text-gray-600 font-medium">
+                            Choose your class level to start practicing mathematics
+                        </p>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                        ${classButtons}
+                    </div>
+                    <div class="text-sm text-gray-500 bg-blue-50 p-4 rounded-xl border border-blue-200">
+                        <div class="flex items-center justify-center gap-2 mb-2">
+                            <span class="text-blue-600">💡</span>
+                            <span class="font-semibold text-blue-800">Practice Mode</span>
+                        </div>
+                        <p>Each quiz contains 10 questions. You have 3 attempts per question.</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        /** Renders Screen 2: Quiz Type Selection. */
+        function renderQuizSelection() {
+            return `
+                <div class="main-card text-center">
+                    <div class="mb-8">
+                        <h2 class="text-4xl font-black text-primary mb-4">
+                            📖 Class ${state.selectedClass} Selected
+                        </h2>
+                        <p class="text-xl text-gray-600 font-medium">
+                            Choose your preferred quiz format:
+                        </p>
+                    </div>
+                    
+                    <div class="flex flex-col md:flex-row justify-center space-y-6 md:space-y-0 md:space-x-8 mb-12">
+                        <button 
+                            onclick="startQuiz('mcq')"
+                            class="quiz-button bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 transform hover:scale-105 w-full md:w-64"
+                        >
+                            <div class="text-4xl mb-3">🎯</div>
+                            <div class="text-xl font-bold mb-2">Multiple Choice</div>
+                            <div class="text-sm opacity-90">Choose from 4 options</div>
+                        </button>
+                        <button 
+                            onclick="startQuiz('direct')"
+                            class="quiz-button bg-gradient-to-r from-teal-500 to-teal-600 text-white hover:from-teal-600 hover:to-teal-700 transform hover:scale-105 w-full md:w-64"
+                        >
+                            <div class="text-4xl mb-3">✏️</div>
+                            <div class="text-xl font-bold mb-2">Direct Entry</div>
+                            <div class="text-sm opacity-90">Type your answer</div>
+                        </button>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row justify-between gap-4">
+                        <button onclick="navigateBack()" class="bg-gray-500 text-white font-semibold py-3 px-6 rounded-xl hover:bg-gray-600 transition transform hover:scale-105 flex items-center justify-center gap-2">
+                            <span>←</span>
+                            <span>Back to Classes</span>
+                        </button>
+                        <button onclick="quitApp()" class="bg-red-500 text-white font-semibold py-3 px-6 rounded-xl hover:bg-red-600 transition transform hover:scale-105 flex items-center justify-center gap-2">
+                            <span>🏠</span>
+                            <span>Main Menu</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        /** Renders Screen 3: The active quiz question. */
+        function renderQuiz() {
+            const question = state.questions[state.currentQuestionIndex];
+            const qNum = state.currentQuestionIndex + 1;
+            const progress = ((qNum - 1) / state.totalQuestions) * 100;
+            
+            let questionContent = '';
+
+            if (state.quizType === 'mcq') {
+                const optionsHtml = question.options.map(option => `
+                    <button 
+                        onclick="checkAnswer(${option})"
+                        class="option-button transform hover:scale-105"
+                    >
+                        ${option}
+                    </button>
+                `).join('');
+                
+                questionContent = `
+                    <div class="grid grid-cols-2 gap-4 justify-center">
+                        ${optionsHtml}
+                    </div>
+                `;
+            } else { // Direct Entry
+                questionContent = `
+                    <div class="flex flex-col items-center space-y-6">
+                        <input 
+                            type="number" 
+                            id="directAnswerInput" 
+                            placeholder="Enter Answer" 
+                            class="input-field"
+                            onkeypress="if(event.key==='Enter') handleDirectEntrySubmission()"
+                        >
+                        <button 
+                            onclick="handleDirectEntrySubmission()"
+                            class="quiz-button bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 w-48 transform hover:scale-105"
+                        >
+                            ✅ Submit Answer
+                        </button>
+                    </div>
+                `;
+            }
+
+            const triesRemaining = state.maxTries - state.incorrectTries;
+
+            return `
+                <div class="main-card">
+                    <!-- Header with class and type info -->
+                    <div class="text-center mb-6">
+                        <h2 class="text-2xl font-bold text-primary mb-2">
+                            📚 Class ${state.selectedClass} • ${state.quizType === 'mcq' ? '🎯 Multiple Choice' : '✏️ Direct Entry'}
+                        </h2>
+                        <p class="text-gray-600 font-medium">
+                            Question ${qNum} of ${state.totalQuestions}
+                        </p>
+                        
+                        <!-- Progress Bar -->
+                        <div class="progress-bar mt-3">
+                            <div class="progress-fill" style="width: ${progress}%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Question Card -->
+                    <div class="question-card">
+                        <div class="question-number">
+                            Question ${qNum}
+                        </div>
+                        
+                        <div class="text-center mb-6">
+                            <p class="text-lg font-semibold text-gray-700 mb-4">
+                                ${question.text}
+                            </p>
+                            <div class="math-expression">
+                                ${question.expression}
+                            </div>
+                        </div>
+                        
+                        ${questionContent}
+                        
+                        <!-- Tries Remaining -->
+                        ${triesRemaining > 0 ? `
+                            <div class="text-center mt-6">
+                                <div class="tries-indicator">
+                                    <span>🔄</span>
+                                    <span>${triesRemaining} attempt${triesRemaining > 1 ? 's' : ''} remaining</span>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col sm:flex-row justify-between gap-4 mt-8">
+                        <button onclick="navigateBack()" class="bg-gray-500 text-white font-semibold py-3 px-6 rounded-xl hover:bg-gray-600 transition transform hover:scale-105 flex items-center justify-center gap-2">
+                            <span>←</span>
+                            <span>Back to Menu</span>
+                        </button>
+                        <button onclick="quitApp()" class="bg-red-500 text-white font-semibold py-3 px-6 rounded-xl hover:bg-red-600 transition transform hover:scale-105 flex items-center justify-center gap-2">
+                            <span>🏠</span>
+                            <span>Main Menu</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        /** Renders the Quiz Finished Screen. */
+        function renderQuizFinished() {
+            return `
+                <div class="main-card text-center">
+                    <div class="mb-8">
+                        <div class="text-8xl mb-6">🎉</div>
+                        <h2 class="text-5xl font-black text-green-600 mb-4">
+                            Congratulations!
+                        </h2>
+                        <p class="text-2xl text-gray-700 font-bold mb-6">
+                            You completed all ${state.totalQuestions} questions for Class ${state.selectedClass}
+                        </p>
+                        
+                        <div class="bg-gradient-to-r from-green-100 to-blue-100 p-6 rounded-2xl border border-green-200 mb-8">
+                            <div class="text-6xl mb-4">⭐</div>
+                            <p class="text-lg font-semibold text-gray-700">
+                                Excellent work! Keep practicing to improve your math skills.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col sm:flex-row justify-center gap-6">
+                        <button onclick="navigateBack()" class="quiz-button bg-gradient-to-r from-primary to-primary-dark text-white hover:from-primary-dark hover:to-purple-700 transform hover:scale-105 w-full sm:w-auto">
+                            <div class="flex items-center justify-center gap-2">
+                                <span>🔄</span>
+                                <span>Try Another Quiz</span>
+                            </div>
+                        </button>
+                        <button onclick="quitApp()" class="quiz-button bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 transform hover:scale-105 w-full sm:w-auto">
+                            <div class="flex items-center justify-center gap-2">
+                                <span>🏠</span>
+                                <span>Main Menu</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // --- Submission Handler for Direct Entry ---
+        function handleDirectEntrySubmission() {
+            const inputElement = document.getElementById('directAnswerInput');
+            if (inputElement) {
+                const userAnswer = parseInt(inputElement.value.trim());
+                if (isNaN(userAnswer)) {
+                    showSystemMessage("⚠️ Please enter a valid number.", "bg-yellow-100 text-yellow-800 border border-yellow-200");
+                    return;
+                }
+                checkAnswer(userAnswer);
+                inputElement.value = ''; // Clear input field
+            }
+        }
+
+        /** Main render function to draw the current view. */
+        function render() {
+            let htmlContent = '';
+            
+            switch (state.currentView) {
+                case 'classSelection':
+                    htmlContent = renderClassSelection();
+                    break;
+                case 'quizSelection':
+                    htmlContent = renderQuizSelection();
+                    break;
+                case 'quiz':
+                    htmlContent = renderQuiz();
+                    break;
+                case 'quizFinished':
+                    htmlContent = renderQuizFinished();
+                    break;
+                default:
+                    htmlContent = `<div class="main-card text-center"><p class="text-red-500">Error: Unknown View</p></div>`;
+            }
+
+            appElement.innerHTML = htmlContent;
+        }
+
+        // Initialize the application on load
+        document.addEventListener('DOMContentLoaded', render);
+
+    </script>
+</body>
+</html>
