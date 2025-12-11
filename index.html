@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Educational Software Collection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 40px 0;
+        }
+        
+        .header h1 {
+            font-size: 3.5em;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.3em;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin: 50px 0;
+        }
+        
+        .project-card {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .project-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+        }
+        
+        .project-card h3 {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .project-card p {
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            line-height: 1.7;
+        }
+        
+        .feature-list {
+            list-style: none;
+            margin: 20px 0;
+            padding: 0;
+        }
+        
+        .feature-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .feature-list li:before {
+            content: "✅";
+            font-weight: bold;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 25px;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .btn:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #48bb78;
+        }
+        
+        .btn-secondary:hover {
+            background: #38a169;
+        }
+        
+        .btn-ghost {
+            background: transparent;
+            border: 2px solid #667eea;
+            color: #667eea;
+        }
+        
+        .btn-ghost:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .coming-soon {
+            opacity: 0.7;
+            border: 2px dashed #667eea;
+        }
+        
+        .features-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            margin: 50px 0;
+            backdrop-filter: blur(10px);
+        }
+        
+        .features-section h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+        }
+        
+        .feature-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        
+        .feature-item h4 {
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        
+        .support-section {
+            text-align: center;
+            padding: 40px 0;
+            margin: 50px 0;
+        }
+        
+        .support-section h2 {
+            margin-bottom: 20px;
+        }
+        
+        .contact-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 40px 0;
+            margin-top: 50px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            opacity: 0.8;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5em;
+            }
+            
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🏫 Educational Software Collection</h1>
+            <p>Free educational tools designed specifically for schools, teachers, and students. Discover and download quality learning software at no cost.</p>
+        </header>
+
+        <section class="projects-grid">
+            <div class="project-card">
+                <h3>📚 Anbu Library Management System</h3>
+                <p>Complete library management solution for schools. Streamline book cataloging, member management, and reporting with this comprehensive system.</p>
+                
+                <ul class="feature-list">
+                    <li>Book cataloging and inventory tracking</li>
+                    <li>Student and staff member management</li>
+                    <li>Book issue and return transactions</li>
+                    <li>Comprehensive reporting system</li>
+                    <li>Search and filter capabilities</li>
+                    <li>Data backup and recovery</li>
+                </ul>
+                
+                <div class="btn-group">
+                    <a href="PROJECTS/anbu-library-system/" class="btn">
+                        📖 View Documentation
+                    </a>
+                    <a href="DOWNLOADS/anbu-library-v1.0.zip" class="btn btn-secondary">
+                        📥 Download Software
+                    </a>
+                </div>
+            </div>
+
+            <div class="project-card">
+                <h3>📝 Spellapp - Spelling Game</h3>
+                <p>Interactive spelling game that makes learning fun for school children. Engaging gameplay with age-appropriate word lists and progress tracking.</p>
+                
+                <ul class="feature-list">
+                    <li>Interactive spelling challenges</li>
+                    <li>Age-appropriate word lists</li>
+                    <li>Instant feedback and scoring</li>
+                    <li>Customizable difficulty levels</li>
+                    <li>Progress tracking system</li>
+                    <li>Classroom and home use</li>
+                </ul>
+                
+                <div class="btn-group">
+                    <a href="PROJECTS/spellapp/" class="btn">
+                        🎮 Play Online
+                    </a>
+                    <a href="PROJECTS/spellapp/" class="btn btn-secondary">
+                        💻 View Source Code
+                    </a>
+                </div>
+            </div>
+
+            <div class="project-card coming-soon">
+                <h3>🚀 Coming Soon</h3>
+                <p>More innovative educational tools are in development to support schools and enhance student learning experiences worldwide.</p>
+                
+                <ul class="feature-list">
+                    <li>Mathematics learning games</li>
+                    <li>Student assessment tools</li>
+                    <li>Teacher resource manager</li>
+                    <li>Parent communication platform</li>
+                    <li>Classroom management tools</li>
+                    <li>Educational content creator</li>
+                </ul>
+                
+                <div class="btn-group">
+                    <a href="#" class="btn btn-ghost" onclick="alert('Stay tuned! New projects coming soon. Follow our GitHub for updates.')">
+                        🔔 Stay Updated
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="features-section">
+            <h2>🌟 Why Choose Our Educational Software?</h2>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <h4>💰 Completely Free</h4>
+                    <p>No licensing fees, subscriptions, or hidden costs. Free forever for educational use.</p>
+                </div>
+                <div class="feature-item">
+                    <h4>🎓 Education Focused</h4>
+                    <p>Built specifically for schools, teachers, and students with real educational needs in mind.</p>
+                </div>
+                <div class="feature-item">
+                    <h4>⚡ Easy Setup</h4>
+                    <p>Simple installation and configuration. Get started in minutes, not hours.</p>
+                </div>
+                <div class="feature-item">
+                    <h4>🌐 Offline Ready</h4>
+                    <p>Works without internet connection. Perfect for schools with limited connectivity.</p>
+                </div>
+                <div class="feature-item">
+                    <h4>🤝 Community Support</h4>
+                    <p>Active community of educators and developers ready to help and support.</p>
+                </div>
+                <div class="feature-item">
+                    <h4>🔄 Regular Updates</h4>
+                    <p>Continuous improvement based on feedback from real educational environments.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="support-section">
+            <h2>📞 Support & Contact</h2>
+            <div class="contact-info">
+                <p style="font-size: 1.2em; margin-bottom: 20px;">Need help with installation, usage, or have suggestions for improvements?</p>
+                <p><strong>📧 Email Support:</strong> [YOUR_EMAIL]</p>
+                <p><strong>⏱️ Response Time:</strong> 24-48 hours</p>
+                <p><strong>💬 Community:</strong> <a href="#" style="color: #fbbf24;">GitHub Discussions</a></p>
+                <p><strong>🐛 Issues:</strong> <a href="#" style="color: #fbbf24;">Report Problems</a></p>
+                <p style="margin-top: 20px; font-size: 0.9em; opacity: 0.8;">All support is provided free of charge to support educational excellence worldwide.</p>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p style="font-size: 1.1em; margin-bottom: 10px;">Making quality educational software accessible to everyone, everywhere.</p>
+            <p>© 2025 Educational Software Collection - Free for Education Worldwide</p>
+            <p style="margin-top: 15px;">
+                <a href="#" style="color: #fbbf24; margin: 0 15px;">Contribute</a> |
+                <a href="#" style="color: #fbbf24; margin: 0 15px;">License</a> |
+                <a href="#" style="color: #fbbf24; margin: 0 15px;">Privacy</a>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // Add some interactive functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate cards on scroll
+            const cards = document.querySelectorAll('.project-card');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            });
+            
+            cards.forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                card.style.transition = 'all 0.6s ease';
+                observer.observe(card);
+            });
+            
+            // Add click tracking for analytics (if needed)
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    console.log('Button clicked:', this.textContent.trim());
+                });
+            });
+        });
+    </script>
+</body>
+</html>
