@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Word Magic Plus!</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    /* === FUN & COLORFUL DESIGN === */
+    body {
+      font-family: 'Comic Sans MS', 'Chalkboard', 'Arial Rounded MT Bold', sans-serif;
+      background: linear-gradient(135deg, #a1c4fd, #c2e9fb, #d4fc79, #ffd3b6);
+      background-size: 400% 400%;
+      animation: gradient 15s ease infinite;
+      margin: 0; padding: 1rem; min-height: 100vh; color: #333;
+    }
+    @keyframes gradient { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+
+    .container {
+      max-width: 700px; margin: 1rem auto; background: rgba(255,255,255,0.95);
+      border-radius: 30px; padding: 2rem; box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: center;
+    }
+    h1 { font-size: 3rem; margin: 0 0 1rem; color: #e91e63; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); animation: bounce 2s infinite; }
+    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+
+    /* Name Input */
+    #nameInput { width: 70%; padding: 1rem; font-size: 1.8rem; text-align: center; border: 4px solid #ff9800; border-radius: 20px; margin: 1rem auto; display: block; }
+
+    /* Progress */
+    #progressContainer { margin: 1rem 0; display: flex; justify-content: center; gap: 8px; }
+    .star { font-size: 2rem; color: #ccc; transition: all 0.4s; }
+    .star.filled { color: #ffd700; transform: scale(1.3); animation: starFill 0.5s; }
+    @keyframes starFill { 0% { transform: scale(1); } 50% { transform: scale(1.5); } 100% { transform: scale(1.3); } }
+
+    p { font-size: 1.3rem; margin: 0.8rem 0; }
+    textarea {
+      width: 100%; height: 120px; padding: 1rem; font-size: 1.4rem;
+      border: 3px solid #4CAF50; border-radius: 15px; background: #f0fff0; margin-bottom: 1rem; resize: none;
+    }
+    button {
+      padding: 1rem 2rem; margin: 0.5rem; font-size: 1.5rem; font-weight: bold;
+      border: none; border-radius: 50px; cursor: pointer; transition: all 0.3s; min-width: 180px;
+    }
+    button:hover:not(:disabled) { transform: scale(1.05); }
+    #addBtn    { background: #4CAF50; color: white; }
+    #startBtn  { background: #FF9800; color: white; }
+    #exitBtn   { background: #f44336; color: white; }
+    #printBtn  { background: #9c27b0; color: white; }
+    button:disabled { background: #ccc !important; cursor: not-allowed; transform: none; }
+
+    #session { margin-top: 2rem; padding: 1.5rem; background: #fff8e1; border-radius: 20px; border: 3px dashed #ffb300; }
+    #status { font-size: 1.4rem; font-weight: bold; color: #d81b60; margin-bottom: 1rem; }
+    #currentWord { font-size: 3.5rem; font-weight: bold; color: #6a1b9a; min-height: 80px; text-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
+    .word { display: inline-block; padding: 10px 20px; background: #fff176; border-radius: 20px; animation: pop 0.5s ease; }
+    @keyframes pop { 0%{transform:scale(0.8);opacity:0} 100%{transform:scale(1);opacity:1} }
+
+    #typeInput {
+      width: 80%; max-width: 400px; padding: 1rem; font-size: 2rem; text-align: center;
+      border: 4px solid #ccc; border-radius: 20px; margin: 1rem auto; display: block;
+      transition: all 0.3s;
+    }
+    #typeInput.correct { border-color: #4CAF50; background: #e8f5e9; }
+    #typeInput.wrong  { border-color: #f44336; background: #ffebee; animation: shake 0.4s; }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-10px)} 75%{transform:translateX(10px)} }
+
+    #readyBtn {
+      background: #4CAF50 !important; color: white; font-size: 1.6rem;
+      padding: 1.2rem 2rem; margin: 1.5rem auto; display: none;
+      border-radius: 50px; min-width: 300px; animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+    #feedback { font-size: 2rem; font-weight: bold; min-height: 50px; position: relative; }
+    .stars { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); font-size: 3rem; opacity: 0; }
+    .stars.show { animation: starPop 1s ease forwards; }
+    @keyframes starPop { 0% { transform: translateX(-50%) scale(0); opacity: 0; } 50% { transform: translateX(-50%) scale(1.3); opacity: 1; } 100% { transform: translateX(-50%) scale(1); opacity: 1; } }
+
+    .confetti { position: fixed; width: 10px; height: 10px; background: #f00; top: -10px; z-index: 1000; pointer-events: none; animation: fall 3s linear forwards; }
+    @keyframes fall { to { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+
+    .word-entry {
+      margin-top: 2rem; padding: 1.5rem; background: rgba(255,255,255,0.9);
+      border-radius: 20px; border: 2px solid #4CAF50; text-align: center;
+    }
+
+    footer { margin-top: 2rem; font-size: 1rem; color: #555; }
+
+    @media (max-width: 500px) {
+      h1 { font-size: 2.2rem; } button { font-size: 1.3rem; padding: 0.8rem 1.5rem; }
+      #currentWord { font-size: 2.8rem; } #typeInput { font-size: 1.6rem; }
+    }
+
+    /* Print Certificate */
+    @media print {
+      body * { visibility: hidden; }
+      #certificate, #certificate * { visibility: visible; }
+      #certificate { position: absolute; left: 0; top: 0; width: 100%; }
+      .no-print { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container no-print">
+    <h1>Word Magic Plus!</h1>
+
+    <!-- NAME INPUT -->
+   <input type="text" id="nameInput" placeholder="Enter your name..." autocomplete="off" />
+<p id="greeting" style="font-size:1.6rem; font-weight:bold; color:#d81b60;"></p>
+
+    <!-- PROGRESS -->
+    <div id="progressContainer"></div>
+
+    <!-- GAME ON TOP -->
+    <div id="session">
+      <p id="status"></p>
+      <p id="currentWord"></p>
+      <input type="text" id="typeInput" placeholder="Click 'I'm Ready!' first" autocomplete="off" disabled />
+      <button id="readyBtn" tabindex="0">I'm Ready! Let Me Type!</button>
+      <p id="feedback"></p>
+      <button id="printBtn" style="display:none;">Print Certificate!</button>
+    </div>
+
+    <!-- WORD LIST BELOW -->
+    <div class="word-entry">
+      <p><strong>Add your words (one per line):</strong></p>
+      <textarea id="wordList"></textarea>
+      <button id="addBtn">Save Words</button>
+      <button id="startBtn">Start Magic Session!</button>
+      <button id="exitBtn" disabled>Exit</button>
+    </div>
+
+    <footer>
+      Made with love by Augustine Anbananthan<br>— assisted by Xi Grok AI —
+    </footer>
+  </div>
+
+  <!-- CERTIFICATE (HIDDEN UNTIL PRINT) -->
+  <div id="certificate" style="display:none; text-align:center; padding:2rem; font-family: 'Comic Sans MS', cursive;">
+    <h1 style="color:#e91e63; font-size:3rem;">Certificate of Word Wizard!</h1>
+    <p style="font-size:2rem;">This certifies that</p>
+    <h2 id="certName" style="color:#6a1b9a; font-size:2.5rem; margin:1rem;"></h2>
+    <p style="font-size:1.8rem;">has mastered 10 magical words!</p>
+    <p style="margin-top:2rem; font-style:italic;">With love from Word Magic Plus!</p>
+  </div>
+
+  <!-- SOUNDS -->
+  <audio id="cheer" src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA="></audio>
+  <audio id="clap" src="data:audio/wav;base64,UklGRl4AAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAA"></audio>
+
+  <script>
+    // ================================================
+    // 1. Elements
+    // ================================================
+    const STORAGE_KEY = 'wordRepeatList';
+    const nameInput = document.getElementById('nameInput');
+    const greeting = document.getElementById('greeting');
+    const progressContainer = document.getElementById('progressContainer');
+    const textarea = document.getElementById('wordList');
+    const status   = document.getElementById('status');
+    const curWord  = document.getElementById('currentWord');
+    const typeInput = document.getElementById('typeInput');
+    const feedback = document.getElementById('feedback');
+    const readyBtn = document.getElementById('readyBtn');
+    const printBtn = document.getElementById('printBtn');
+    const certName = document.getElementById('certName');
+    const cheerAudio = document.getElementById('cheer');
+    const clapAudio = document.getElementById('clap');
+
+    let playerName = '';
+    let sessionWords = [];
+    let idx = 0;
+    let isSpeaking = false;
+    let round = 1;
+    const totalRounds = 3;
+
+    // ================================================
+    // 2. Name & Greeting
+    // ================================================
+    // 1. CHANGE 'input' to 'keydown'
+nameInput.addEventListener('keydown', (event) => {
+    
+    // 2. CHECK if the pressed key is 'Enter'
+    if (event.key === 'Enter') {
+        // Prevent the form from submitting (if the input is in a form)
+        event.preventDefault(); 
+        
+        // Use the current value
+        playerName = nameInput.value.trim(); 
+        
+        if (playerName) {
+            // Display the greeting
+            greeting.textContent = `Hi, ${playerName}! Let's play!`;
+            
+            // Hide the input field
+            nameInput.style.display = 'none';
+        } else {
+            // Optional: If Enter is pressed on an empty field
+            greeting.textContent = 'Please enter your name to start.';
+            nameInput.style.display = 'block'; // Ensure it stays visible if empty
+        }
+    } 
+    // IMPORTANT: If it's not the 'Enter' key, the code does nothing, 
+    // which allows the user to finish typing their name.
+});
+
+    // ================================================
+    // 3. Load words
+    // ================================================
+    function loadWords() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        textarea.value = saved.trim();
+      } else {
+        const defaultWords = [
+          'ant','apple','ball','banana','cat','cake','dog','door','egg','elephant',
+          'fish','flower','goat','grape','hat','horse','ice','igloo','juice','kite',
+          'lemon','monkey','nest','orange','pencil','queen','rabbit','sun','tree','umbrella',
+          'violet','water','xylophone','yellow','zebra','bear','cow','deer','frog','giraffe',
+          'hippo','koala','lion','mouse','owl','pig','sheep','tiger','wolf','zebra',
+          'boat','car','bus','train','plane','bike','ship','truck','van','rocket',
+          'red','blue','green','yellow','pink','purple','orange','black','white','brown',
+          'happy','sad','big','small','fast','slow','hot','cold','wet','dry'
+        ];
+        textarea.value = defaultWords.join('\n');
+      }
+    }
+    loadWords();
+
+    // ================================================
+    // 4. Save words
+    // ================================================
+    document.getElementById('addBtn').addEventListener('click', () => {
+      const raw = textarea.value.trim();
+      if (!raw) return alert('Please type at least one word.');
+      localStorage.setItem(STORAGE_KEY, raw);
+      alert('Word list saved!');
+    });
+
+    // ================================================
+    // 5. Session
+    // ================================================
+    document.getElementById('startBtn').addEventListener('click', startSession);
+    document.getElementById('exitBtn').addEventListener('click', endSession);
+
+    function startSession() {
+      if (!playerName) return alert('Please enter your name!');
+      const all = textarea.value.trim().split(/\s+/).filter(w => w);
+      if (all.length < 10) return alert('Need at least 10 words!');
+
+      sessionWords = [];
+      const copy = all.slice();
+      for (let i = 0; i < 10; i++) {
+        const rand = Math.floor(Math.random() * copy.length);
+        sessionWords.push(copy.splice(rand, 1)[0]);
+      }
+
+      idx = 0;
+      updateProgress();
+      status.textContent = `Round ${round} of ${totalRounds} — Listen carefully, ${playerName}!`;
+      curWord.textContent = '';
+      typeInput.value = '';
+      typeInput.disabled = true;
+      typeInput.placeholder = "Click 'I'm Ready!' first";
+      feedback.innerHTML = '';
+      readyBtn.style.display = 'none';
+      printBtn.style.display = 'none';
+      document.getElementById('exitBtn').disabled = false;
+      document.getElementById('startBtn').disabled = true;
+
+      showNextWord();
+    }
+
+    function updateProgress() {
+      progressContainer.innerHTML = '';
+      for (let i = 0; i < 10; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        star.textContent = '★';
+        if (i < idx) star.classList.add('filled');
+        progressContainer.appendChild(star);
+      }
+    }
+
+    function showNextWord() {
+      if (idx >= sessionWords.length) {
+        status.textContent = `Amazing, ${playerName}! You finished Round ${round}!`;
+        typeInput.disabled = true;
+        readyBtn.style.display = 'none';
+        printBtn.style.display = 'block';
+        certName.textContent = playerName;
+        if (round < totalRounds) {
+          setTimeout(() => {
+            round++;
+            startSession();
+          }, 3000);
+        }
+        return;
+      }
+
+      const word = sessionWords[idx];
+      curWord.innerHTML = `<span class="word">${word}</span>`;
+      typeInput.value = '';
+      typeInput.disabled = true;
+      typeInput.placeholder = "Click 'I'm Ready!' first";
+      typeInput.className = '';
+      feedback.innerHTML = '';
+
+      readyBtn.style.display = 'block';
+      readyBtn.disabled = false;
+      readyBtn.focus();
+
+      readyBtn.onclick = readyBtn.onkeydown = (e) => {
+        if (e.type === 'click' || (e.type === 'keydown' && e.key === 'Enter')) {
+          readyBtn.style.display = 'none';
+          typeInput.disabled = false;
+          typeInput.placeholder = 'Type the word here...';
+          typeInput.focus();
+        }
+      };
+
+      speak(word);
+    }
+
+    function endSession() {
+      speechSynthesis.cancel();
+      sessionWords = [];
+      idx = 0;
+      round = 1;
+      updateProgress();
+      status.textContent = 'Session ended.';
+      curWord.textContent = '';
+      typeInput.disabled = true;
+      typeInput.placeholder = "Click 'I'm Ready!' first";
+      feedback.innerHTML = '';
+      readyBtn.style.display = 'none';
+      printBtn.style.display = 'none';
+      document.getElementById('exitBtn').disabled = true;
+      document.getElementById('startBtn').disabled = false;
+    }
+
+    // ================================================
+    // 6. Typing + STARS + CONFETTI
+    // ================================================
+    typeInput.addEventListener('input', () => {
+      if (isSpeaking) return;
+      const typed = typeInput.value.trim().toLowerCase();
+      const correct = sessionWords[idx].toLowerCase();
+
+      if (typed === correct) {
+        typeInput.classList.add('correct');
+        feedback.innerHTML = 'Correct! Great job! <span class="stars">★★★</span>';
+        const stars = feedback.querySelector('.stars');
+        stars.classList.add('show');
+        cheerAudio.play();
+        clapAudio.play();
+        confettiBurst();
+        typeInput.disabled = true;
+        updateProgress();
+        setTimeout(() => {
+          idx++;
+          showNextWord();
+        }, 2800);
+      } else if (typed && !correct.startsWith(typed)) {
+        typeInput.classList.add('wrong');
+        feedback.innerHTML = 'Try again!';
+      } else {
+        typeInput.classList.remove('correct', 'wrong');
+        feedback.innerHTML = '';
+      }
+    });
+
+    function confettiBurst() {
+      for (let i = 0; i < 50; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * 100 + 'vw';
+        confetti.style.background = ['#f00','#0f0','#00f','#ff0','#f0f'][Math.floor(Math.random()*5)];
+        confetti.style.animationDelay = Math.random() * 2 + 's';
+        document.body.appendChild(confetti);
+        setTimeout(() => confetti.remove(), 3000);
+      }
+    }
+
+    // ================================================
+    // 7. Print Certificate
+    // ================================================
+    printBtn.addEventListener('click', () => {
+      window.print();
+    });
+
+    // ================================================
+    // 8. Speech
+    // ================================================
+    function speak(text) {
+      if (!('speechSynthesis' in window)) return;
+      speechSynthesis.cancel();
+      setTimeout(() => {
+        isSpeaking = true;
+        const utter = new SpeechSynthesisUtterance(text);
+        const voices = speechSynthesis.getVoices();
+        const goodVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Google') || v.name.includes('Samantha')))
+                       || voices.find(v => v.lang.startsWith('en'));
+        if (goodVoice) utter.voice = goodVoice;
+        utter.lang = 'en-US';
+        utter.rate = 0.75;
+        utter.pitch = 1.1;
+        utter.onend = () => { isSpeaking = false; };
+        utter.onerror = () => { isSpeaking = false; };
+        speechSynthesis.speak(utter);
+      }, 100);
+    }
+  </script>
+</body>
+</html>
