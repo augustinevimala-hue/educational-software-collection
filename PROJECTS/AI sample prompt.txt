@@ -17,7 +17,265 @@ Details of software:
 
 ******************************************************************
 
-After giving the above prompt to AI agent, it created the following html code.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Mental Maths Practice</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: linear-gradient(135deg, #fceabb, #f8b500);
+    text-align: center;
+}
+
+.screen {
+    display: none;
+    padding: 30px;
+}
+
+.active {
+    display: block;
+}
+
+h1, h2 {
+    color: #2c3e50;
+}
+
+button {
+    padding: 12px 20px;
+    margin: 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background-color: #3498db;
+    color: white;
+}
+
+button:hover {
+    background-color: #2980b9;
+}
+
+input, select {
+    padding: 10px;
+    font-size: 16px;
+    margin: 10px;
+    width: 200px;
+}
+
+.option {
+    display: block;
+    background: #fff;
+    margin: 10px auto;
+    padding: 12px;
+    width: 300px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.option:hover {
+    background: #dff9fb;
+}
+
+.menu-bar {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+}
+
+.credit {
+    position: fixed;
+    bottom: 10px;
+    width: 100%;
+    font-size: 14px;
+    color: #2c3e50;
+}
+
+.answer-box {
+    font-size: 20px;
+    color: #c0392b;
+    margin-top: 15px;
+}
+
+.score-box {
+    font-size: 18px;
+    margin-top: 15px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- MENU BAR -->
+<div class="menu-bar">
+    <button onclick="goHome()">Back</button>
+    <button onclick="exitApp()">Exit</button>
+</div>
+
+<!-- WELCOME SCREEN -->
+<div id="welcome" class="screen active">
+    <h1>Welcome to Mental Maths Practice</h1>
+    <p>Enter your name (optional)</p>
+    <input type="text" id="username" placeholder="Guest">
+    <br>
+    <button onclick="startApp()">Start</button>
+    <div class="credit">Developed for Child Learning • Mental Maths Practice</div>
+</div>
+
+<!-- LEVEL SCREEN -->
+<div id="levelScreen" class="screen">
+    <h2>Select Class Level</h2>
+    <input type="text" id="classLevel" placeholder="Class 3 to 10">
+    <br>
+    <h2>Difficulty</h2>
+    <select id="difficulty">
+        <option value="easy">Easy</option>
+        <option value="moderate">Moderate</option>
+        <option value="difficult">Difficult</option>
+    </select>
+    <br>
+    <button onclick="startQuiz()">Next</button>
+</div>
+
+<!-- QUIZ SCREEN -->
+<div id="quizScreen" class="screen">
+    <h2 id="questionText"></h2>
+    <div id="options"></div>
+    <div class="answer-box" id="answerBox"></div>
+    <div class="score-box" id="scoreBox"></div>
+</div>
+
+<!-- SCORE SCREEN -->
+<div id="scoreScreen" class="screen">
+    <h2>Score Summary</h2>
+    <p id="scoreSummary"></p>
+    <button onclick="goHome()">OK</button>
+</div>
+
+<!-- EXIT SCREEN -->
+<div id="exitScreen" class="screen">
+    <h1>Thanks for using this software</h1>
+    <h2>Get back whenever you want. Bye for now.</h2>
+</div>
+
+<script>
+let user = "Guest";
+let score = 0;
+let questionCount = 0;
+let attempts = 0;
+let correctAnswer = 0;
+
+function showScreen(id) {
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+}
+
+function startApp() {
+    user = document.getElementById("username").value || "Guest";
+    showScreen("levelScreen");
+}
+
+function startQuiz() {
+    score = 0;
+    questionCount = 0;
+    nextQuestion();
+    showScreen("quizScreen");
+}
+
+function nextQuestion() {
+    attempts = 0;
+    questionCount++;
+    document.getElementById("answerBox").innerHTML = "";
+
+    let a = Math.floor(Math.random() * 20) + 1;
+    let b = Math.floor(Math.random() * 20) + 1;
+    correctAnswer = a + b;
+
+    document.getElementById("questionText").innerText =
+        `Question ${questionCount}: What is ${a} + ${b} ?`;
+
+    let options = [correctAnswer,
+                   correctAnswer + 1,
+                   correctAnswer - 1,
+                   correctAnswer + 2];
+
+    options.sort(() => Math.random() - 0.5);
+
+    let optDiv = document.getElementById("options");
+    optDiv.innerHTML = "";
+
+    options.forEach(opt => {
+        let div = document.createElement("div");
+        div.className = "option";
+        div.tabIndex = 0;
+        div.innerText = opt;
+        div.onclick = () => checkAnswer(opt);
+        div.onkeypress = e => { if (e.key === "Enter") checkAnswer(opt); };
+        optDiv.appendChild(div);
+    });
+
+    updateScore();
+}
+
+function checkAnswer(ans) {
+    attempts++;
+
+    if (ans === correctAnswer && attempts <= 3) {
+        score++;
+        nextStep();
+    } else if (attempts >= 3) {
+        document.getElementById("answerBox").innerText =
+            "Correct Answer: " + correctAnswer;
+        nextStep(true);
+    }
+}
+
+function nextStep(noScore = false) {
+    updateScore();
+    setTimeout(() => {
+        if (questionCount >= 10) {
+            showScore();
+        } else {
+            nextQuestion();
+        }
+    }, 1000);
+}
+
+function updateScore() {
+    document.getElementById("scoreBox").innerText =
+        `User: ${user} | Score: ${score}/${questionCount}`;
+}
+
+function showScore() {
+    document.getElementById("scoreSummary").innerText =
+        `${user}, your score is ${score}/10`;
+    showScreen("scoreScreen");
+}
+
+function goHome() {
+    showScreen("welcome");
+}
+
+function exitApp() {
+    showScreen("exitScreen");
+}
+</script>
+
+</body>
+</html>
+
+**********************************************
+
+
+
+
+
+
+
+After giving the above prompt to AI agent, it created the above html code.
 
 I copied the code into notepad and saved it as (allfiles) math.html file.
 
