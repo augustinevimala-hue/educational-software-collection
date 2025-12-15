@@ -10,3 +10,24 @@ Details of software:
 4.	Main menu will have view score below check. This will display user name and the score */10.    Again OK or return button takes to main.
 5.	Exit is the next with a full screen display of “Thanks for using this software. Get back whenever you want. Bye for now.”
 6.	Complete clean exit after saving the required information. 
+
+
+
+
+
+******************************************************************
+
+After giving the above prompt to AI agent, it created the following html code.
+
+I copied the code into notepad and saved it as (allfiles) math.html file.
+
+When I click that file I get the fully working programme. 
+
+Very simple.
+
+Try one by one.
+Try to edit some of the source code to customize your output. You can keep the output in the browser open and also keep the code file open in the notepad and edit, save and refresh the browser and see the effect. 
+Have a nice time and enjoy.
+
+For any doubt contact me at augustine.vimala@gmail.com
+Thanks.
