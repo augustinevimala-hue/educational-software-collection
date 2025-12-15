@@ -1,0 +1,12 @@
+Simple single level software development. 
+Purpose – child learning, mental maths practice, score and badge achievement motivation, self learning
+Environment – Windows on PC or laptop, python/html, singlefile compilation
+Layout – Colourful, easy navigation, button menu, back in all windows. Admin, quit
+Features – score increment system, display score, multi user capability, score for individual, level class 3 to 10, suggestion after three attempts. No score for suggested answer, identification used and displayed for the present log in only, credit for the developer, if the file size can be controlled sound and image to enhance the application.
+Details of software:
+1.	Welcome screen with entry of the user (not mandatory, use guest as default). Start menu is also activated to enter into the quiz with default user. At the bottom credit line.  Every window will have a menu to exit or back at ease. Both keyboard and mouse will be activated. Tab and enter will be activated for the next field, menu, button.
+2.	First ask the level.  Easy typing interface. No case sensitive. Once the level – class 3 to 10 is given the next window shows MCQ or Direct. The level of difficulty is to be also selected. Easy, moderate, difficult level.  
+3.	Next button.  When pressed it takes to a friendly window large display four options with questions. Random sums are chosen for choice with one correct answer. Radio button with the option to choose from. Mouse/tab and space may select the option. Three attempts are allowed for score. After three attempts the actual answer is displayed in a larger font at the bottom of the exiting buttons. Exit button can be pressed any time to go to main menu. Ten exercise are given. After ten an extra button gets displayed – continue. Again next ten exercise is given. Exit possible at any time.
+4.	Main menu will have view score below check. This will display user name and the score */10.    Again OK or return button takes to main.
+5.	Exit is the next with a full screen display of “Thanks for using this software. Get back whenever you want. Bye for now.”
+6.	Complete clean exit after saving the required information. 
