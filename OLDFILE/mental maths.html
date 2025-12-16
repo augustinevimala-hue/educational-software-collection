@@ -2,521 +2,248 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
-<title>Mental Maths Competition – Augustine Anbananthan</title>
+<title>Mental Maths Practice</title>
+
 <style>
-html, body {
-  height: 100%;
-  margin: 0;
-}
 body {
-  font-family: 'Segoe UI', 'Arial', sans-serif;
-  min-height: 100vh;
-  margin: 0;
-  background: linear-gradient(135deg, #fff3b0 0%, #ffe0e9 100%);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: linear-gradient(135deg, #fceabb, #f8b500);
+    text-align: center;
 }
-#app {
-  width: 100vw;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
+
 .screen {
-  width: 98vw;
-  max-width: 600px;
-  background: white;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.13);
-  border-radius: 1.5em;
-  padding: 2em;
-  margin: auto;
-  text-align: center;
-  display: none;
+    display: none;
+    padding: 30px;
 }
-.screen.active {
-  display: block;
-  animation: fadein 0.9s;
+
+.active {
+    display: block;
 }
-@keyframes fadein { from { opacity: 0;} to { opacity: 1;} }
-h1, h2, h3 {
-  font-family: 'Comic Sans MS', 'Segoe UI', sans-serif;
+
+h1, h2 {
+    color: #2c3e50;
 }
-h1 {
-  font-size: 2.3em;
-  color: #ef476f;
-  margin: 0.5em 0;
-  text-shadow: 0 2px 6px #e8aaa8a7;
+
+button {
+    padding: 12px 20px;
+    margin: 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background-color: #3498db;
+    color: white;
 }
-h2 {
-  color: #118ab2;
+
+button:hover {
+    background-color: #2980b9;
 }
-label, input, select {
-  font-size: 1.3em;
+
+input, select {
+    padding: 10px;
+    font-size: 16px;
+    margin: 10px;
+    width: 200px;
 }
-input[type="text"], select {
-  padding: 0.4em;
-  margin: 0.2em 0 1em 0;
-  width: 85%;
-  border-radius: .6em;
-  border: 2px solid #60a5fa;
+
+.option {
+    display: block;
+    background: #fff;
+    margin: 10px auto;
+    padding: 12px;
+    width: 300px;
+    border-radius: 8px;
+    cursor: pointer;
 }
-button, .btn {
-  font-size: 1.25em;
-  font-weight: 600;
-  margin: 0.5em 0.5em 0.5em 0;
-  padding: 0.7em 1.5em;
-  background: linear-gradient(90deg, #ffd166, #06d6a0);
-  color: #222;
-  border: none;
-  border-radius: 1.6em;
-  box-shadow: 0 0.1em 0.5em #2222;
-  cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
+
+.option:hover {
+    background: #dff9fb;
 }
-button:active, .btn:active {
-  transform: scale(0.97);
-  filter: brightness(0.92);
+
+.menu-bar {
+    position: fixed;
+    top: 10px;
+    right: 10px;
 }
+
+.credit {
+    position: fixed;
+    bottom: 10px;
+    width: 100%;
+    font-size: 14px;
+    color: #2c3e50;
+}
+
+.answer-box {
+    font-size: 20px;
+    color: #c0392b;
+    margin-top: 15px;
+}
+
 .score-box {
-  display: flex;
-  justify-content: space-evenly;
-  align-items: center;
-  margin-top: 1.2em;
-  flex-wrap: wrap;
-  font-size: 1.1em;
-}
-.score-user {
-  margin: 0.5em 1.3em;
-  padding: 0.5em 1em;
-  border-radius: 1em;
-  background: #f1faee;
-  border: 2px solid #aaf;
-  min-width: 7em;
-}
-.question-box {
-  font-size: 2.1em;
-  font-weight: 600;
-  background: #caf0f8;
-  color: #073b4c;
-  margin: 1em auto;
-  padding: 0.8em 0.6em;
-  border-radius: 1em;
-  box-shadow: 0 0.2em 0.8em #73abff22;
-}
-input[type="number"] {
-  font-size: 1.1em;
-  padding: 0.3em 1.6em;
-  width: 60%;
-  margin-top: 0.7em;
-  border-radius: 1em;
-  border: 1.5px solid #8ecae6;
-}
-@media (max-width:700px) {
-  .screen {
-    max-width: 96vw;
-    padding: 1em 0.3em;
-  }
-  h1 {
-    font-size: 1.6em;
-  }
-}
-.creator-credit {
-  font-size: 1.09em;
-  color: #fd8e0e;
-  margin-top: 1.2em;
-  letter-spacing: 0.03em;
-}
-.menu-btns {
-  margin: 2em 0 0.3em 0;
-}
-#scoretable {
-  width: 95%;
-  margin: auto;
-  border-collapse: collapse;
-  margin-bottom: 2em;
-}
-#scoretable td, #scoretable th {
-  border: 1.5px solid #48cae4;
-  padding: 0.6em;
-  font-size: 1em;
-}
-#scoretable th {
-  background: #bde0fe;
-  color: #075985;
+    font-size: 18px;
+    margin-top: 15px;
 }
 </style>
 </head>
+
 <body>
-<div id="app">
-<!-- Audio Elements (MUST be in body, not inside any hidden div) -->
-<audio id="soundWelcome" src="https://cdn.pixabay.com/audio/2022/10/16/audio_124b6f34a3.mp3" preload="auto"></audio>
-<audio id="soundCorrect" src="https://cdn.pixabay.com/audio/2022/07/26/audio_112b3fa6e2.mp3" preload="auto"></audio>
-<audio id="soundWrong" src="https://cdn.pixabay.com/audio/2022/03/15/audio_d2a0011fd6.mp3" preload="auto"></audio>
-<audio id="soundWin" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124b6e373c.mp3" preload="auto"></audio>
 
-<!-- Welcome Screen -->
-<div class="screen active" id="welcomeScreen">
-  <h1>Welcome to<br/>Mental Maths Competition!</h1>
-  <div style="font-size:1.44em;color:#073b4c; margin-top:1.2em;">
-    <strong>A fun game for Primary kids & parents!<br>(Two Players: Parent vs Kid)</strong>
-  </div>
-  <div class="creator-credit">
-    Created by Augustine Anbananthan and assisted by Perplexity AI
-  </div>
-  <button onclick="onStartGame();">Start Game</button>
+<!-- MENU BAR -->
+<div class="menu-bar">
+    <button onclick="goHome()">Back</button>
+    <button onclick="exitApp()">Exit</button>
 </div>
 
-<!-- Setup Screen -->
-<div class="screen" id="setupScreen">
-  <h2>Game Setup</h2>
-  <form id="setupForm" onsubmit="event.preventDefault(); startGame();">
-    <div>
-      <label>Math Operation: </label>
-      <select id="operation">
-        <option value="add">Addition (+)</option>
-        <option value="sub">Subtraction (−)</option>
-        <option value="mul">Multiplication (×)</option>
-        <option value="div">Division (÷)</option>
-      </select>
-    </div>
-    <div>
-      <label>Time per sum (seconds): </label>
-      <select id="timeLimit">
-        <option value="10">10</option>
-        <option value="20" selected>20</option>
-        <option value="30">30</option>
-        <option value="45">45</option>
-      </select>
-    </div>
-    <div>
-      <label>Maximum number (digits): </label>
-      <select id="maxDigit">
-        <option value="10">10</option>
-        <option value="20" selected>20</option>
-        <option value="50">50</option>
-        <option value="100">100</option>
-      </select>
-    </div>
-    <div>
-      <label>Player 1 Name: </label>
-      <input type="text" id="player1" maxlength="14" required placeholder="e.g. Kid's name" autocomplete="off"/>
-    </div>
-    <div>
-      <label>Player 2 Name: </label>
-      <input type="text" id="player2" maxlength="14" required placeholder="e.g. Parent's name" autocomplete="off"/>
-    </div>
-    <button type="submit" class="btn">Begin Competition</button>
-  </form>
-  <button class="btn" onclick="showScreen('welcomeScreen')">Back</button>
-  <div class="creator-credit">Created by Augustine Anbananthan and assisted by Perplexity AI</div>
+<!-- WELCOME SCREEN -->
+<div id="welcome" class="screen active">
+    <h1>Welcome to Mental Maths Practice</h1>
+    <p>Enter your name (optional)</p>
+    <input type="text" id="username" placeholder="Guest">
+    <br>
+    <button onclick="startApp()">Start</button>
+    <div class="credit">Developed for Child Learning • Mental Maths Practice</div>
 </div>
 
-<!-- Game Screen -->
-<div class="screen" id="gameScreen">
-  <div class="score-box">
-    <div class="score-user" id="showP1">P1: 0</div>
-    <div class="score-user" id="showP2">P2: 0</div>
-    <div style="color:#f72585;font-size:1.13em;" id="timerCount">Time: --</div>
-  </div>
-  <div class="question-box" id="questionBox">
-    <!-- Question appears here -->
-  </div>
-  <form id="answerForm" onsubmit="event.preventDefault(); checkAnswer();">
-    <input type="number" id="answerInput" required autocomplete="off"/>
-    <button type="submit" class="btn">Submit</button>
-  </form>
-  <div style="margin-top:1em;" id="questionStatus"></div>
-  <button class="btn" onclick="exitSession();" style="background:linear-gradient(90deg,#e71d36,#f9c74f);color:#fff;">Exit Session</button>
-  <div class="creator-credit">Created by Augustine Anbananthan and assisted by Perplexity AI</div>
+<!-- LEVEL SCREEN -->
+<div id="levelScreen" class="screen">
+    <h2>Select Class Level</h2>
+    <input type="text" id="classLevel" placeholder="Class 3 to 10">
+    <br>
+    <h2>Difficulty</h2>
+    <select id="difficulty">
+        <option value="easy">Easy</option>
+        <option value="moderate">Moderate</option>
+        <option value="difficult">Difficult</option>
+    </select>
+    <br>
+    <button onclick="startQuiz()">Next</button>
 </div>
 
-<!-- Result Screen -->
-<div class="screen" id="resultScreen">
-  <h2>Session Results</h2>
-  <div id="finalScores"></div>
-  <button class="btn" onclick="showScreen('scoreScreen');">View Score History</button>
-  <button class="btn" onclick="resetGame();">Play Again</button>
-  <button class="btn" onclick="showScreen('welcomeScreen');">Exit to Main Menu</button>
-  <div class="creator-credit">Created by Augustine Anbananthan and assisted by Perplexity AI</div>
+<!-- QUIZ SCREEN -->
+<div id="quizScreen" class="screen">
+    <h2 id="questionText"></h2>
+    <div id="options"></div>
+    <div class="answer-box" id="answerBox"></div>
+    <div class="score-box" id="scoreBox"></div>
 </div>
 
-<!-- Scoreboard -->
-<div class="screen" id="scoreScreen">
-  <h2>Score History</h2>
-  <table id="scoretable">
-    <thead><tr>
-      <th>Session</th>
-      <th>Player 1</th>
-      <th>Score</th>
-      <th>Player 2</th>
-      <th>Score</th>
-      <th>Winner</th>
-    </tr></thead>
-    <tbody id="scoreTBody"></tbody>
-  </table>
-  <button class="btn" onclick="resetHistory();">Reset All Scores</button>
-  <button class="btn" onclick="showScreen('welcomeScreen');">Back to Home</button>
-  <div class="creator-credit">Created by Augustine Anbananthan and assisted by Perplexity AI</div>
+<!-- SCORE SCREEN -->
+<div id="scoreScreen" class="screen">
+    <h2>Score Summary</h2>
+    <p id="scoreSummary"></p>
+    <button onclick="goHome()">OK</button>
 </div>
+
+<!-- EXIT SCREEN -->
+<div id="exitScreen" class="screen">
+    <h1>Thanks for using this software</h1>
+    <h2>Get back whenever you want. Bye for now.</h2>
 </div>
 
 <script>
-const TOTAL_QUESTIONS = 10;
+let user = "Guest";
+let score = 0;
+let questionCount = 0;
+let attempts = 0;
+let correctAnswer = 0;
 
-let game = {
-  op: 'add',
-  timeLimit: 20,
-  max: 20,
-  player1: '',
-  player2: '',
-  scores: [0,0],
-  qNo: 1,
-  questions: [],
-  current: {},
-  turn: 0,
-  timer: null,
-  timerVal: 0,
-  sessionScores: [],
-  history: []
-};
-
-function playSound(type) {
-  if(type==='welcome') {
-    let a = document.getElementById('soundWelcome');
-    if (a) { a.currentTime = 0; a.play();}
-  }
-  if(type==='correct') {
-    let a = document.getElementById('soundCorrect');
-    if (a) { a.currentTime = 0; a.play(); }
-  }
-  if(type==='wrong') {
-    let a = document.getElementById('soundWrong');
-    if (a) { a.currentTime = 0; a.play(); }
-  }
-  if(type==='win') {
-    let a = document.getElementById('soundWin');
-    if (a) { a.currentTime = 0; a.play(); }
-  }
+function showScreen(id) {
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
 }
 
-// Show screen helper and play sound on welcome
-function showScreen(screen) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(screen).classList.add('active');
-  // Play welcome only when opening welcome screen
-  if(screen==='welcomeScreen') setTimeout(()=>{playSound('welcome')},200);
-}
-function onStartGame() {
-  showScreen('setupScreen');
+function startApp() {
+    user = document.getElementById("username").value || "Guest";
+    showScreen("levelScreen");
 }
 
-function startGame() {
-  game.op = document.getElementById('operation').value;
-  game.timeLimit = parseInt(document.getElementById('timeLimit').value,10);
-  game.max = parseInt(document.getElementById('maxDigit').value,10);
-  game.player1 = document.getElementById('player1').value.trim() || "Player 1";
-  game.player2 = document.getElementById('player2').value.trim() || "Player 2";
-  game.scores = [0,0];
-  game.qNo = 1;
-  game.turn = 0;
-  game.questions = [];
-  game.sessionScores = [];
-  generateQuestions();
-  showScreen('gameScreen');
-  updateScores();
-  nextQuestion();
-}
-
-function generateQuestions() {
-  for(let i=0; i<TOTAL_QUESTIONS; ++i) {
-    let q = makeQuestion();
-    game.questions.push(q);
-  }
-}
-
-function makeQuestion() {
-  let a,b, ans, str, op=game.op, max=game.max;
-  // For division, ensure integer answer and avoid division by zero
-  if(op==='div') {
-    ans = getRand(2, Math.max(4,max));
-    b = getRand(2, Math.max(4, max));
-    a = ans * b;
-    str = `${a} ÷ ${b} = ?`;
-  } else if(op==='mul') {
-    a = getRand(2, max);
-    b = getRand(2, max);
-    ans = a * b;
-    str = `${a} × ${b} = ?`;
-  } else if(op==='sub') {
-    a = getRand(2, max);
-    b = getRand(2, a); // ensure no negative results
-    ans = a - b;
-    str = `${a} − ${b} = ?`;
-  } else {
-    a = getRand(2, max);
-    b = getRand(2, max);
-    ans = a + b;
-    str = `${a} + ${b} = ?`;
-  }
-  return {q: str, a: ans};
-}
-
-function getRand(min,max) {
-  return Math.floor(Math.random()*(max-min+1))+min;
-}
-
-function updateScores() {
-  document.getElementById('showP1').innerHTML = `${shortName(game.player1)}: <b>${game.scores[0]}</b>`;
-  document.getElementById('showP2').innerHTML = `${shortName(game.player2)}: <b>${game.scores[1]}</b>`;
-}
-function shortName(name) {
-  return name.length > 15 ? name.substring(0,14)+"…" : name;
+function startQuiz() {
+    score = 0;
+    questionCount = 0;
+    nextQuestion();
+    showScreen("quizScreen");
 }
 
 function nextQuestion() {
-  if(game.qNo > TOTAL_QUESTIONS) {
-    finishGame();
-    return;
-  }
-  // Alternating turn
-  game.turn = game.qNo%2===1 ? 0 : 1;
-  let q = game.questions[game.qNo-1];
-  game.current = q;
-  let pname = (game.turn===0?game.player1:game.player2);
-  let prompt = `Q${game.qNo}: ${q.q} <br><span style="color:#0096c7;font-size:0.77em;">(${pname}'s turn)</span>`;
-  document.getElementById('questionBox').innerHTML = prompt;
-  document.getElementById('answerInput').value = '';
-  document.getElementById('answerInput').focus();
-  document.getElementById('questionStatus').innerHTML = '';
-  game.timerVal = game.timeLimit;
-  document.getElementById('timerCount').textContent = `Time: ${game.timerVal}s`;
-  if(game.timer) clearInterval(game.timer);
-  game.timer = setInterval(() => {
-    game.timerVal--;
-    document.getElementById('timerCount').textContent = `Time: ${game.timerVal}s`;
-    if(game.timerVal <= 0) {
-      clearInterval(game.timer);
-      timesUp();
+    attempts = 0;
+    questionCount++;
+    document.getElementById("answerBox").innerHTML = "";
+
+    let a = Math.floor(Math.random() * 20) + 1;
+    let b = Math.floor(Math.random() * 20) + 1;
+    correctAnswer = a + b;
+
+    document.getElementById("questionText").innerText =
+        `Question ${questionCount}: What is ${a} + ${b} ?`;
+
+    let options = [correctAnswer,
+                   correctAnswer + 1,
+                   correctAnswer - 1,
+                   correctAnswer + 2];
+
+    options.sort(() => Math.random() - 0.5);
+
+    let optDiv = document.getElementById("options");
+    optDiv.innerHTML = "";
+
+    options.forEach(opt => {
+        let div = document.createElement("div");
+        div.className = "option";
+        div.tabIndex = 0;
+        div.innerText = opt;
+        div.onclick = () => checkAnswer(opt);
+        div.onkeypress = e => { if (e.key === "Enter") checkAnswer(opt); };
+        optDiv.appendChild(div);
+    });
+
+    updateScore();
+}
+
+function checkAnswer(ans) {
+    attempts++;
+
+    if (ans === correctAnswer && attempts <= 3) {
+        score++;
+        nextStep();
+    } else if (attempts >= 3) {
+        document.getElementById("answerBox").innerText =
+            "Correct Answer: " + correctAnswer;
+        nextStep(true);
     }
-  }, 1000);
 }
 
-function checkAnswer() {
-  let ansVal = parseInt(document.getElementById('answerInput').value,10);
-  let correct = (ansVal === game.current.a);
-  clearInterval(game.timer);
-  if(correct) {
-    playSound('correct');
-    game.scores[game.turn]++;
-    showStatus('✅ Correct! Good job!', true);
-  } else {
-    playSound('wrong');
-    showStatus(`❌ Wrong! Correct answer was ${game.current.a}.`, false);
-  }
-  updateScores();
-  setTimeout(() => {
-    game.qNo++;
-    nextQuestion();
-  }, 1400);
+function nextStep(noScore = false) {
+    updateScore();
+    setTimeout(() => {
+        if (questionCount >= 10) {
+            showScore();
+        } else {
+            nextQuestion();
+        }
+    }, 1000);
 }
 
-function timesUp() {
-  showStatus(`⏰ Time's up! Correct answer: ${game.current.a}`, false);
-  setTimeout(() => {
-    game.qNo++;
-    nextQuestion();
-  }, 1250);
+function updateScore() {
+    document.getElementById("scoreBox").innerText =
+        `User: ${user} | Score: ${score}/${questionCount}`;
 }
 
-function showStatus(msg, correct) {
-  document.getElementById('questionStatus').innerHTML = msg;
+function showScore() {
+    document.getElementById("scoreSummary").innerText =
+        `${user}, your score is ${score}/10`;
+    showScreen("scoreScreen");
 }
 
-function finishGame() {
-  if(game.timer) clearInterval(game.timer);
-  // Save to sessionScores and history
-  game.sessionScores = [
-    {name:game.player1, score:game.scores[0]},
-    {name:game.player2, score:game.scores[1]}
-  ];
-  let winner, p1=game.scores[0], p2=game.scores[1];
-  if(p1>p2) winner = game.player1;
-  else if(p2>p1) winner = game.player2;
-  else winner = "Tie";
-  let histItem = {
-    session: (game.history.length+1),
-    p1:game.player1, s1:p1,
-    p2:game.player2, s2:p2,
-    winner: winner
-  };
-  game.history.push(histItem);
-  saveHistory();
-  showFinalScores(winner, p1, p2);
-  playSound('win');
-  showScreen('resultScreen');
+function goHome() {
+    showScreen("welcome");
 }
 
-function exitSession() {
-  if(confirm('Exit current session and reset scores?')) {
-    resetGame();
-    showScreen('welcomeScreen');
-  }
+function exitApp() {
+    showScreen("exitScreen");
 }
-function resetGame() {
-  game.scores=[0,0];
-  game.qNo=1;
-  game.questions=[];
-  if(game.timer) clearInterval(game.timer);
-  showScreen('setupScreen');
-}
-function updateScoreTable() {
-  let tbody = document.getElementById('scoreTBody');
-  tbody.innerHTML = '';
-  const hist = getHistory();
-  if(!hist.length) {
-    tbody.innerHTML = `<tr><td colspan="6" style="color:#888;">No game sessions played yet.</td></tr>`;
-    return;
-  }
-  hist.forEach(h=>{
-    let winner=h.winner;
-    if(winner==="Tie") winner='<span style="color:#222;">Tie</span>';
-    else winner=`<span style="color:#ff7100;">${winner}</span>`;
-    tbody.innerHTML += `<tr>
-      <td>S${h.session}</td>
-      <td>${h.p1}</td>
-      <td>${h.s1}</td>
-      <td>${h.p2}</td>
-      <td>${h.s2}</td>
-      <td>${winner}</td>
-    </tr>`;
-  });
-}
-function resetHistory() {
-  if(confirm('Clear all session history?')) {
-    localStorage.removeItem('mathHist');
-    game.history = [];
-    updateScoreTable();
-  }
-}
-
-function saveHistory() {
-  let h = getHistory();
-  h.push(game.history[game.history.length-1]);
-  localStorage.setItem('mathHist', JSON.stringify(h));
-}
-function getHistory() {
-  let s = localStorage.getItem('mathHist');
-  return s ? JSON.parse(s) : [];
-}
-// On load, update history table and play welcome sound
-window.onload = function() {
-  showScreen('welcomeScreen');
-  updateScoreTable();
-};
 </script>
+
 </body>
 </html>

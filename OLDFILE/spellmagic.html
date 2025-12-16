@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Kids Spelling & Typing Practice</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background: #e3fcff; font-family: 'Segoe UI', Arial, sans-serif; }
+    .main { max-width: 650px; margin: 3em auto; background: #fffbe6; border-radius: 24px; box-shadow: 0 0 10px #a3a3a3; padding: 2.5em 2em; }
+    .credit { font-size: 1rem; color: #555; margin-top: 2em; text-align: center;}
+    .btn-lg, input.form-control { font-size: 1.6rem; padding: .7em 1.3em !important; }
+    .score { font-size: 2.2rem; font-weight:bold; color: #206020; margin: 1em 0;}
+    
+    /* Keyboard Styles */
+    .keyboard-container {
+        margin-top: 25px;
+        padding: 10px;
+        background: #e0e0e0;
+        border-radius: 12px;
+        display: inline-block;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .keyboard-row {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 5px;
+    }
+    .key {
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
+        text-align: center;
+        background: #fff;
+        border: 1px solid #aaa;
+        border-radius: 6px;
+        margin: 2px;
+        font-weight: bold;
+        font-size: 1.1rem;
+        user-select: none;
+        box-shadow: 0 2px 0 #888;
+        transition: background-color 0.1s;
+    }
+    .key.space { width: 250px; }
+    .key.highlight {
+        background-color: #ff9800; /* Orange highlight */
+        color: white;
+        border-color: #f57c00;
+        box-shadow: 0 3px 0 #d35400;
+        transform: translateY(-1px);
+    }
+    .typing-word-display {
+        font-size: 2.8rem;
+        font-weight: bold;
+        margin-bottom: 0.5em;
+        color: #004d80;
+    }
+    @media (max-width: 650px) {
+        .main { padding: 1.5em .5em; max-width: 100%; }
+        .key { width: 30px; height: 30px; line-height: 30px; font-size: 0.9rem; margin: 1px; }
+        .key.space { width: 150px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="main text-center">
+    <div id="screen">
+      <h1 class="mb-4">Loading Word List... Please Wait.</h1>
+    </div>
+    <div class="credit">Developed by Augustine Anbananthan</div>
+  </div>
+
+<script>
+// --- Kids Dictation & Typing Web App: Persistent Word List & Local Storage ---
+
+let stockWords = []; 
+let currentSession = [];
+let wordIndex = 0, score = 0, attempts = 0;
+
+const LOCAL_STORAGE_KEY = 'kidsSpellingWords';
+const DEFAULT_WORDS_FILE = 'words.txt'; 
+const FALLBACK_WORDS = ["elephant", "giraffe", "school", "bottle", "window", "sunshine", "green", "flower", "cloud", "river"];
+
+// --- New Helper Function for Robust Focus ---
+function setInputFocus() {
+  const ansInput = document.getElementById("ans");
+  // Use a small delay (100ms) to ensure the DOM has finished rendering the input box
+  // before attempting to set focus.
+  if (ansInput) {
+    setTimeout(() => { ansInput.focus(); }, 100);
+  }
+}
+// ------------------------------------------
+
+// Function to save the current stockWords array to the user's Local Storage
+function saveWordsToLocal() {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(stockWords));
+}
+
+// Function to load words from the external file and Local Storage
+async function loadWords() {
+    let defaultWords = [];
+    let loadSuccess = false;
+    
+    // 1. Fetch the default words from the external file
+    try {
+        const response = await fetch(DEFAULT_WORDS_FILE);
+        // Check for HTTP errors (e.g., 404 Not Found)
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const text = await response.text();
+        defaultWords = text.split(/\r?\n/).map(x => x.trim().toLowerCase()).filter(x => x.length > 1);
+        loadSuccess = true;
+    } catch (e) {
+        console.error("Failed to load default words file:", e);
+        // Display user-facing error message
+        document.getElementById("screen").innerHTML = `
+            <div style="color: red; font-size: 1.2rem; margin-bottom: 1em;">
+                **ERROR:** Could not load default words from "${DEFAULT_WORDS_FILE}".<br>
+                Using a small fallback list. Please check the file path.
+            </div>
+        `;
+        // Fallback to the hardcoded list
+        defaultWords = FALLBACK_WORDS; 
+    }
+
+    // 2. Load any custom words saved by the user from Local Storage
+    const savedWordsJSON = localStorage.getItem(LOCAL_STORAGE_KEY);
+    let savedWords = [];
+    if (savedWordsJSON) {
+        try {
+            savedWords = JSON.parse(savedWordsJSON).filter(w => typeof w === 'string' && w.length > 1); 
+        } catch (e) {
+            console.error("Failed to parse saved words from Local Storage:", e);
+        }
+    }
+    
+    // 3. Combine both lists and ensure uniqueness
+    const initialWordCount = defaultWords.length;
+    const combinedWords = new Set([...defaultWords, ...savedWords]);
+    stockWords = Array.from(combinedWords).filter(w => w); 
+    
+    console.log(`Words loaded. Default: ${initialWordCount}, Total: ${stockWords.length}.`);
+    
+    // Once words are loaded (successfully or via fallback), show the welcome screen
+    showWelcome();
+}
+
+
+function say(text, repeat=2) {
+  let synth = window.speechSynthesis;
+  let speak = (tx) => {
+    let utter = new SpeechSynthesisUtterance(tx);
+    utter.lang = 'en-IN';
+    utter.rate = 0.88;
+    utter.pitch = 1.0;
+    synth.speak(utter);
+  };
+  synth.cancel(); 
+  for (let i = 0; i < repeat; i++) setTimeout(() => speak(text), i * 1200);
+}
+
+function showWelcome() {
+  document.getElementById("screen").innerHTML = `
+    <h1 class="mb-4">Welcome! (${stockWords.length} words loaded)</h1>
+    <button class="btn btn-primary btn-lg mb-3" onclick="startSpellingTest()">Start **Dictation (Spelling Test)**</button>
+    <button class="btn btn-success btn-lg mb-3" onclick="startTypingExercise()">Start **Typing Exercise**</button>
+    
+    <div class="mt-4">
+        <h3 class="mb-3" style="color:#004d80;">Add Words Permanently (in this browser)</h3>
+        <input class="form-control mb-3" id="newWordsInput" autocomplete="off" placeholder="Enter words separated by commas or new lines">
+        <button class="btn btn-warning btn-lg" onclick="addWordsPermanently()">Add Words</button>
+    </div>
+  `;
+}
+
+// Ensure the loading process starts when the script executes
+loadWords(); 
+
+// ----- WORD ADDITION FUNCTION (Local Storage Save) -----
+function addWordsPermanently() {
+    const input = document.getElementById("newWordsInput").value;
+    if (!input) return;
+
+    // Split by commas OR newlines
+    let newWords = input.split(/,|\r?\n/).map(x => x.trim().toLowerCase()).filter(x => x.length > 1);
+    if (newWords.length === 0) return;
+
+    const currentWordSet = new Set(stockWords);
+    const addedCount = newWords.reduce((count, word) => {
+        if (!currentWordSet.has(word)) {
+            stockWords.push(word);
+            currentWordSet.add(word); 
+            return count + 1;
+        }
+        return count;
+    }, 0);
+
+    saveWordsToLocal(); 
+    
+    document.getElementById("newWordsInput").value = '';
+    alert(`Successfully added ${addedCount} new words! The total word count is now ${stockWords.length}. These words will be saved in your browser.`);
+    showWelcome();
+}
+
+// ----- TYPING EXERCISE (VISUAL TYPING WITH KEYBOARD GUIDE) -----
+function startTypingExercise() {
+  currentSession = [...stockWords];
+  currentSession = currentSession.length > 10 ? shuffle(currentSession).slice(0, 10) : shuffle(currentSession);
+  wordIndex = score = attempts = 0;
+  showTypingWord();
+}
+
+// Function that builds the static QWERTY keyboard structure
+function buildKeyboardHtml() {
+    const keys = [
+        ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+        ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
+        ['Z', 'X', 'C', 'V', 'B', 'N', 'M']
+    ];
+    let html = '<div class="keyboard-container">';
+
+    keys.forEach(row => {
+        html += '<div class="keyboard-row">';
+        row.forEach(key => {
+            html += `<div class="key" id="key-${key}">${key}</div>`;
+        });
+        html += '</div>';
+    });
+    // Space bar
+    html += '<div class="keyboard-row"><div class="key space" id="key- ">SPACE</div></div>';
+    
+    html += '</div>';
+    return html;
+}
+
+function showTypingWord() {
+  if (wordIndex >= currentSession.length) return showResult();
+  attempts = 0;
+  let word = currentSession[wordIndex];
+  
+  document.getElementById("screen").innerHTML = `
+    <div class="mb-2" style="font-size:2.0rem;color:#0060a8;">**Type the word as shown:**</div>
+    <div class="typing-word-display">${word}</div>
+    <input class="form-control mb-3" id="ans" autocomplete="off" placeholder="Type here..." 
+           oninput="updateKeyboardGuide('${word}')"
+           onkeydown="if(event.key=='Enter'){submitTypingAnswer();}"> 
+    <button class="btn btn-warning btn-lg mb-3" onclick="say('${word}',2)">🔊 Hear Word</button>
+    <button class="btn btn-primary btn-lg" onclick="submitTypingAnswer()">Submit</button> 
+    
+    <div class="keyboard-guide">${buildKeyboardHtml()}</div>
+
+    <button class="btn btn-info btn-lg mt-2" onclick="showWelcome()">← Main Menu</button>
+  `;
+  
+  // Initialize the keyboard highlight and set focus
+  updateKeyboardGuide(word);
+  setInputFocus();
+}
+
+function submitTypingAnswer() {
+  let ans = document.getElementById("ans").value.trim().toLowerCase();
+  let word = currentSession[wordIndex].toLowerCase();
+  if (ans == "") return;
+  attempts++;
+  let correct = ans === word;
+  
+  // Remove all highlights before proceeding
+  clearKeyboardHighlights();
+
+  if (correct) {
+    score++;
+    showFeedback("Correct!", "#25c025");
+    setTimeout(() => { wordIndex++; showTypingWord(); }, 1200);
+  } else if (attempts < 3) {
+    showFeedback("Wrong, try again!", "#d03030");
+    setTimeout(() => {
+      document.getElementById("ans").value = '';
+      document.getElementById("ans").focus();
+      updateKeyboardGuide(word); // Re-highlight the first letter
+    }, 1300);
+  } else {
+    showFeedback(`Incorrect! The word was: <b>${word}</b>`, "#d03030", true);
+    setTimeout(() => { wordIndex++; showTypingWord(); }, 2000);
+  }
+}
+
+// ----- DICTATION (SPELLING TEST) (LISTENING EXERCISE) -----
+function startSpellingTest() {
+  currentSession = [...stockWords];
+  currentSession = currentSession.length > 10 ? shuffle(currentSession).slice(0, 10) : shuffle(currentSession);
+  wordIndex = score = attempts = 0;
+  showSpellingWord();
+}
+
+function showSpellingWord() {
+  if (wordIndex >= currentSession.length) return showResult();
+  attempts = 0;
+  let word = currentSession[wordIndex];
+  document.getElementById("screen").innerHTML = `
+    <div class="mb-2" style="font-size:2.0rem;color:#0060a8;">**Type the word (listen carefully):**</div>
+    <input class="form-control mb-3" id="ans" autocomplete="off" placeholder="Type here..."
+           onkeydown="if(event.key=='Enter'){submitSpellingAnswer();}">
+    <button class="btn btn-warning btn-lg mb-3" onclick="say('${word}',2)">🔊 Hear Again</button>
+    <button class="btn btn-primary btn-lg" onclick="submitSpellingAnswer()">Submit</button>
+    <button class="btn btn-info btn-lg mt-2" onclick="showWelcome()">← Main Menu</button>
+  `;
+  say(word, 2);
+  
+  setInputFocus();
+}
+
+function submitSpellingAnswer() {
+  let ans = document.getElementById("ans").value.trim().toLowerCase();
+  let word = currentSession[wordIndex].toLowerCase();
+  if (ans == "") return;
+  attempts++;
+  let correct = ans === word;
+  if (correct) {
+    score++;
+    showFeedback("Correct!", "#25c025");
+    setTimeout(() => { wordIndex++; showSpellingWord(); }, 1200);
+  } else if (attempts < 3) {
+    showFeedback("Wrong, try again!", "#d03030");
+    setTimeout(() => {
+      say(word, 2);
+      document.getElementById("ans").value = '';
+      document.getElementById("ans").focus();
+    }, 1300);
+  } else {
+    showFeedback(`Incorrect! The word was: <b>${word}</b>`, "#d03030", true);
+    setTimeout(() => { wordIndex++; showSpellingWord(); }, 2000);
+  }
+}
+
+function showFeedback(msg, color, reveal=false) {
+  let fdbk = document.createElement('div');
+  fdbk.innerHTML = msg;
+  fdbk.style = `font-size:2rem;font-weight:bold;color:${color};background:#fffbe6;margin:12px 0;`;
+  document.getElementById("screen").appendChild(fdbk);
+  if(reveal) say("The word is " + currentSession[wordIndex].toLowerCase(), 2);
+  else say(msg, 1);
+}
+
+function showResult() {
+  document.getElementById("screen").innerHTML = `
+    <div class="score">Session Complete!<br>Your Score: ${score} / ${currentSession.length}</div>
+    <button class="btn btn-success btn-lg mb-3" onclick="showWelcome()">Main Menu</button>
+  `;
+  say(`Session complete! Your score is ${score} out of ${currentSession.length}`, 1);
+}
+
+function shuffle(arr) {
+  let a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    let j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// --- Keyboard Logic Functions ---
+
+// Removes the highlight class from all keys
+function clearKeyboardHighlights() {
+    document.querySelectorAll('.key.highlight').forEach(key => {
+        key.classList.remove('highlight');
+    });
+}
+
+// Highlights the next required key
+function highlightKey(keyChar) {
+    // Handle space key specifically
+    const id = keyChar === ' ' ? 'key- ' : `key-${keyChar.toUpperCase()}`;
+    const keyElement = document.getElementById(id);
+    if (keyElement) {
+        keyElement.classList.add('highlight');
+    }
+}
+
+// Main function for the visual guide
+function updateKeyboardGuide(word) {
+    const inputElement = document.getElementById("ans");
+    if (!inputElement) return;
+    const typedLength = inputElement.value.length;
+    
+    clearKeyboardHighlights();
+
+    if (typedLength < word.length) {
+        const nextChar = word[typedLength];
+        highlightKey(nextChar);
+    }
+    // If the word is complete, no key is highlighted.
+}
+
+</script>
+</body>
+</html>

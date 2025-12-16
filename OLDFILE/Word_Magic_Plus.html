@@ -33,8 +33,8 @@
 
     p { font-size: 1.3rem; margin: 0.8rem 0; }
     textarea {
-      width: 100%; height: 120px; padding: 1rem; font-size: 1.4rem;
-      border: 3px solid #4CAF50; border-radius: 15px; background: #f0fff0; margin-bottom: 1rem; resize: none;
+      width: 100%; height: 180px; padding: 1rem; font-size: 1.4rem;
+      border: 3px solid #4CAF50; border-radius: 15px; background: #f0fff0; margin-bottom: 1rem; resize: vertical;
     }
     button {
       padding: 1rem 2rem; margin: 0.5rem; font-size: 1.5rem; font-weight: bold;
@@ -45,6 +45,7 @@
     #startBtn  { background: #FF9800; color: white; }
     #exitBtn   { background: #f44336; color: white; }
     #printBtn  { background: #9c27b0; color: white; }
+    #clearBtn  { background: #795548; color: white; }
     button:disabled { background: #ccc !important; cursor: not-allowed; transform: none; }
 
     #session { margin-top: 2rem; padding: 1.5rem; background: #fff8e1; border-radius: 20px; border: 3px dashed #ffb300; }
@@ -87,6 +88,7 @@
     @media (max-width: 500px) {
       h1 { font-size: 2.2rem; } button { font-size: 1.3rem; padding: 0.8rem 1.5rem; }
       #currentWord { font-size: 2.8rem; } #typeInput { font-size: 1.6rem; }
+      textarea { height: 150px; }
     }
 
     /* Print Certificate */
@@ -104,13 +106,13 @@
     <h1>Word Magic Plus!</h1>
 
     <!-- NAME INPUT -->
-   <input type="text" id="nameInput" placeholder="Enter your name..." autocomplete="off" />
-<p id="greeting" style="font-size:1.6rem; font-weight:bold; color:#d81b60;"></p>
+    <input type="text" id="nameInput" placeholder="Enter your name..." autocomplete="off" />
+    <p id="greeting" style="font-size:1.6rem; font-weight:bold; color:#d81b60;"></p>
 
     <!-- PROGRESS -->
     <div id="progressContainer"></div>
 
-    <!-- GAME ON TOP -->
+    <!-- GAME SESSION -->
     <div id="session">
       <p id="status"></p>
       <p id="currentWord"></p>
@@ -120,21 +122,26 @@
       <button id="printBtn" style="display:none;">Print Certificate!</button>
     </div>
 
-    <!-- WORD LIST BELOW -->
+    <!-- WORD LIST EDITOR -->
     <div class="word-entry">
-      <p><strong>Add your words (one per line):</strong></p>
+      <p><strong>Add or edit your words (one per line):</strong></p>
       <textarea id="wordList"></textarea>
       <button id="addBtn">Save Words</button>
+      <button id="clearBtn">Clear Saved Words</button>
       <button id="startBtn">Start Magic Session!</button>
       <button id="exitBtn" disabled>Exit</button>
+      <p style="font-size:1rem; margin-top:1rem; color:#666;">
+        Your words are saved in this browser permanently.<br>
+        Use "Clear Saved Words" to reset to default list.
+      </p>
     </div>
 
     <footer>
-      Made with love by Augustine Anbananthan<br>— assisted by Xi Grok AI —
+      Made with love by Augustine Anbananthan<br>— assisted by Grok AI —
     </footer>
   </div>
 
-  <!-- CERTIFICATE (HIDDEN UNTIL PRINT) -->
+  <!-- CERTIFICATE -->
   <div id="certificate" style="display:none; text-align:center; padding:2rem; font-family: 'Comic Sans MS', cursive;">
     <h1 style="color:#e91e63; font-size:3rem;">Certificate of Word Wizard!</h1>
     <p style="font-size:2rem;">This certifies that</p>
@@ -149,15 +156,15 @@
 
   <script>
     // ================================================
-    // 1. Elements
+    // 1. Elements & Constants
     // ================================================
-    const STORAGE_KEY = 'wordRepeatList';
+    const STORAGE_KEY = 'wordMagicPlus_wordList';
     const nameInput = document.getElementById('nameInput');
     const greeting = document.getElementById('greeting');
     const progressContainer = document.getElementById('progressContainer');
     const textarea = document.getElementById('wordList');
-    const status   = document.getElementById('status');
-    const curWord  = document.getElementById('currentWord');
+    const status = document.getElementById('status');
+    const curWord = document.getElementById('currentWord');
     const typeInput = document.getElementById('typeInput');
     const feedback = document.getElementById('feedback');
     const readyBtn = document.getElementById('readyBtn');
@@ -174,77 +181,132 @@
     const totalRounds = 3;
 
     // ================================================
-    // 2. Name & Greeting
+    // 2. Default Word List (your provided list)
     // ================================================
-    // 1. CHANGE 'input' to 'keydown'
-nameInput.addEventListener('keydown', (event) => {
-    
-    // 2. CHECK if the pressed key is 'Enter'
-    if (event.key === 'Enter') {
-        // Prevent the form from submitting (if the input is in a form)
-        event.preventDefault(); 
-        
-        // Use the current value
-        playerName = nameInput.value.trim(); 
-        
-        if (playerName) {
-            // Display the greeting
-            greeting.textContent = `Hi, ${playerName}! Let's play!`;
-            
-            // Hide the input field
-            nameInput.style.display = 'none';
-        } else {
-            // Optional: If Enter is pressed on an empty field
-            greeting.textContent = 'Please enter your name to start.';
-            nameInput.style.display = 'block'; // Ensure it stays visible if empty
-        }
-    } 
-    // IMPORTANT: If it's not the 'Enter' key, the code does nothing, 
-    // which allows the user to finish typing their name.
-});
+    const defaultWords = [
+      'ability','absent','accept','accident','active','address','advice','agree','airplane','along',
+      'amount','ancient','anger','answer','ant','appear','applaud','apple','approve','argue',
+      'army','arrive','artist','attack','attempt','attention','author','average','avoid','balance',
+      'ball','banana','basket','bat','battery','beach','bear','beauty','become','beginning',
+      'believe','between','beyond','birth','blanket','blossom','borrow','bounce','bowl','box',
+      'brave','breathe','bridge','bright','broken','brother','brought','build','bundle','buried',
+      'busy','butter','button','cake','camera','capture','careful','carpet','castle','cat',
+      'cause','ceiling','center','change','charge','cheap','check','cheese','chemical','chicken',
+      'choice','circle','climb','cloth','cloudy','collect','colony','common','company','complete',
+      'confirm','connect','contract','control','copy','corner','correct','country','cow','crack',
+      'create','creature','credit','crowd','cruel','cup','curious','danger','decide','declare',
+      'decrease','defeat','degree','deliver','demand','depend','describe','dessert','develop','diagram',
+      'diamond','dinner','direct','disease','display','distance','divide','dog','dollar','door',
+      'dot','double','dragon','drain','drawing','dress','drift','drill','driver','drop',
+      'eager','early','earth','easily','egg','elaborate','electric','elephant','empty','energy',
+      'engine','enormous','escape','evening','event','exact','examine','example','excellent','excited',
+      'exercise','expect','explain','explode','extra','fabric','famous','fan','fashion','father',
+      'fence','fierce','figure','final','finish','fireplace','fish','fishing','flavor','flight',
+      'flower','follow','forest','forgot','fortune','fountain','fox','freedom','friendly','fruit',
+      'future','garden','gather','gentle','giant','girl','glance','globe','goat','govern',
+      'grab','grain','grape','grateful','gravity','greatest','greet','grip','group','guard',
+      'guess','guitar','gum','gun','hammer','handle','harbor','harmony','harvest','hat',
+      'hazard','hen','hero','hidden','hobby','hollow','honey','honor','hop','hope',
+      'hopeful','horizon','horse','hospital','host','household','huge','humble','hunger','hunter',
+      'hurry','hymn','ice','idea','identity','igloo','ignore','iguana','imagine','important','increase',
+      'inflate','injure','ink','inside','intelligent','invite','island','issue','jaguar','jam',
+      'jelly','jet','journey','judge','juice','jump','jungle','kangaroo','kettle','keyboard',
+      'kick','kid','king','kingdom','kit','kite','kitten','knee','knight','knowledge',
+      'label','ladder','lady','lake','lamp','language','large','laughter','launch','leader',
+      'leaf','leap','learn','leave','legal','lemon','lend','length','lesson','library',
+      'limit','lion','listen','lively','lizard','lock','log','lonely','loose','loud',
+      'lunch','magnet','major','manage','map','market','marvel','massive','master','match',
+      'mature','meadow','measure','medical','melody','mention','mercy','message','metal','method',
+      'midnight','mighty','mirror','mistake','mixture','model','modern','moment','monkey','monster',
+      'monthly','mood','moon','morning','motion','mountain','movement','muddy','multiply','museum',
+      'musician','mysterious','myth','narrow','nation','native','nature','neat','needle','neighbour',
+      'nervous','nest','net','network','night','noble','normal','notice','number','nut',
+      'obey','object','observe','occasion','occupy','offer','office','officer','official','onion',
+      'operation','opinion','opposite','orange','order','ordinary','organ','origin','outdoor','outline',
+      'outside','oven','owl','owner','oxygen','package','paddle','pair','palace','panic',
+      'parade','parcel','partner','passenger','pattern','pause','peaceful','peanut','pebble','pencil',
+      'penguin','perfect','perform','perhaps','permit','person','phrase','physics','pickle','pig',
+      'pillow','pilot','pinch','planet','plastic','please','plenty','plumber','pocket','poem',
+      'poison','polite','popular','positive','postman','pot','potato','powerful','practice','praise',
+      'prepare','present','pressure','pretend','prevent','pride','primary','prince','prison','private',
+      'process','produce','program','promise','protect','protest','provide','puberty','public','puddle',
+      'puzzle','quality','quantity','quart','quarter','queen','question','quick','quiet','quit',
+      'quiz','quote','rabbit','racing','radar','radio','railway','rain','rainbow','raise','random',
+      'rapid','rare','rather','real','recent','record','reduce','reflect','region','regular',
+      'reject','release','relief','remain','remark','remove','repeat','replace','reply','report',
+      'request','require','rescue','research','respect','respond','result','return','review','reward',
+      'rich','rid','riddle','right','rigid','ring','ripple','risk','rival','roast',
+      'robot','rock','rocket','rosy','rough','royal','rug','satisfy','sip','snake',
+      'star','sun','tiger','top','train','tree','umbrella','up','van','violet',
+      'viper','water','web','wind','wise','wolf','xylophone','yak','yellow','zebra','zip'
+    ];
 
     // ================================================
-    // 3. Load words
+    // 3. Load Words (user-saved first, then default)
     // ================================================
     function loadWords() {
       const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
+      if (saved && saved.trim()) {
         textarea.value = saved.trim();
       } else {
-        const defaultWords = [
-          'ant','apple','ball','banana','cat','cake','dog','door','egg','elephant',
-          'fish','flower','goat','grape','hat','horse','ice','igloo','juice','kite',
-          'lemon','monkey','nest','orange','pencil','queen','rabbit','sun','tree','umbrella',
-          'violet','water','xylophone','yellow','zebra','bear','cow','deer','frog','giraffe',
-          'hippo','koala','lion','mouse','owl','pig','sheep','tiger','wolf','zebra',
-          'boat','car','bus','train','plane','bike','ship','truck','van','rocket',
-          'red','blue','green','yellow','pink','purple','orange','black','white','brown',
-          'happy','sad','big','small','fast','slow','hot','cold','wet','dry'
-        ];
         textarea.value = defaultWords.join('\n');
       }
     }
     loadWords();
 
     // ================================================
-    // 4. Save words
+    // 4. Save & Clear Words
     // ================================================
     document.getElementById('addBtn').addEventListener('click', () => {
       const raw = textarea.value.trim();
       if (!raw) return alert('Please type at least one word.');
       localStorage.setItem(STORAGE_KEY, raw);
-      alert('Word list saved!');
+      alert('Word list saved permanently in this browser!');
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      if (confirm('Are you sure? This will delete your saved words and reset to the default list.')) {
+        localStorage.removeItem(STORAGE_KEY);
+        textarea.value = defaultWords.join('\n');
+        alert('Saved words cleared. Default list loaded.');
+      }
     });
 
     // ================================================
-    // 5. Session
+    // 5. Name Input (Mobile-Friendly)
+    // ================================================
+    function acceptName() {
+      playerName = nameInput.value.trim();
+      if (playerName) {
+        greeting.textContent = `Hi, ${playerName}! Let's play!`;
+        nameInput.style.display = 'none';
+      } else {
+        greeting.textContent = 'Please enter your name to start.';
+      }
+    }
+
+    nameInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        acceptName();
+      }
+    });
+
+    nameInput.addEventListener('blur', acceptName);
+
+    window.addEventListener('load', () => {
+      nameInput.focus();
+    });
+
+    // ================================================
+    // 6. Session Logic (unchanged except word source)
     // ================================================
     document.getElementById('startBtn').addEventListener('click', startSession);
     document.getElementById('exitBtn').addEventListener('click', endSession);
 
     function startSession() {
       if (!playerName) return alert('Please enter your name!');
-      const all = textarea.value.trim().split(/\s+/).filter(w => w);
+      const all = textarea.value.trim().split('\n').map(w => w.trim()).filter(w => w);
       if (all.length < 10) return alert('Need at least 10 words!');
 
       sessionWords = [];
@@ -254,7 +316,7 @@ nameInput.addEventListener('keydown', (event) => {
         sessionWords.push(copy.splice(rand, 1)[0]);
       }
 
-      idx = 0;
+      idx = 0; round = 1;
       updateProgress();
       status.textContent = `Round ${round} of ${totalRounds} — Listen carefully, ${playerName}!`;
       curWord.textContent = '';
@@ -291,7 +353,18 @@ nameInput.addEventListener('keydown', (event) => {
         if (round < totalRounds) {
           setTimeout(() => {
             round++;
-            startSession();
+            // Re-select 10 new random words for next round
+            const all = textarea.value.trim().split('\n').map(w => w.trim()).filter(w => w);
+            const copy = all.slice();
+            sessionWords = [];
+            for (let i = 0; i < 10; i++) {
+              const rand = Math.floor(Math.random() * copy.length);
+              sessionWords.push(copy.splice(rand, 1)[0]);
+            }
+            idx = 0;
+            updateProgress();
+            status.textContent = `Round ${round} of ${totalRounds} — Listen carefully, ${playerName}!`;
+            showNextWord();
           }, 3000);
         }
         return;
@@ -339,7 +412,7 @@ nameInput.addEventListener('keydown', (event) => {
     }
 
     // ================================================
-    // 6. Typing + STARS + CONFETTI
+    // 7. Typing Check
     // ================================================
     typeInput.addEventListener('input', () => {
       if (isSpeaking) return;
@@ -382,15 +455,10 @@ nameInput.addEventListener('keydown', (event) => {
     }
 
     // ================================================
-    // 7. Print Certificate
+    // 8. Print & Speech
     // ================================================
-    printBtn.addEventListener('click', () => {
-      window.print();
-    });
+    printBtn.addEventListener('click', () => window.print());
 
-    // ================================================
-    // 8. Speech
-    // ================================================
     function speak(text) {
       if (!('speechSynthesis' in window)) return;
       speechSynthesis.cancel();
